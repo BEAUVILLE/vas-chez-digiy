@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAS CHEZ DIGIY - Le grand village digital africain</title>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: #0A0A0A;
+            color: #FFFFFF;
+            overflow: hidden;
+        }
+
+        .video-container {
+            width: 1080px;
+            height: 1920px;
+            background: #0A0A0A;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (max-width: 1080px) {
+            .video-container {
+                width: 100vw;
+                height: 100vh;
+            }
+        }
+
+        .scene {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 100px 80px;
+            opacity: 0;
+            animation: fadeInOut 4s ease-in-out forwards;
+        }
+
+        /* SCENE 1: LES QUESTIONS QUOTIDIENNES */
+        .scene-1 {
+            animation-delay: 0s;
+            background: linear-gradient(135deg, #1A1A1A, #0A0A0A);
+            justify-content: center;
+        }
+
+        .questions-container {
+            text-align: center;
+            max-width: 900px;
+        }
+
+        .question-item {
+            margin: 35px 0;
+            opacity: 0;
+        }
+
+        .question-item:nth-child(1) { animation: slideUp 0.6s ease-out 0.5s forwards; }
+        .question-item:nth-child(2) { animation: slideUp 0.6s ease-out 1.2s forwards; }
+        .question-item:nth-child(3) { animation: slideUp 0.6s ease-out 1.9s forwards; }
+
+        .question-emoji {
+            font-size: 72px;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 38px;
+            line-height: 1.5;
+            color: #A8A8A8;
+        }
+
+        .old-solution {
+            font-size: 32px;
+            color: #FF6B35;
+            margin-top: 12px;
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        /* SCENE 2: LA RÉVÉLATION "VAS CHEZ DIGIY" */
+        .scene-2 {
+            animation-delay: 4s;
+            background: 
+                radial-gradient(circle at 50% 50%, rgba(255, 184, 0, 0.3) 0%, transparent 60%),
+                #0A0A0A;
+        }
+
+        .revelation-container {
+            text-align: center;
+        }
+
+        .revelation-icon {
+            font-size: 180px;
+            animation: zoomIn 1s ease-out 4.5s backwards;
+        }
+
+        .revelation-phrase {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 82px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFB800, #00FF88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-top: 50px;
+            line-height: 1.3;
+            animation: slideUp 1s ease-out 5s backwards;
+        }
+
+        .revelation-subtitle {
+            font-size: 42px;
+            color: #A8A8A8;
+            margin-top: 40px;
+            animation: slideUp 1s ease-out 5.5s backwards;
+        }
+
+        /* SCENE 3: TOUT EST LÀ - Split rapide */
+        .scene-3 {
+            animation-delay: 8s;
+            background: linear-gradient(135deg, #0A0A0A, #1A1A1A);
+            padding: 120px 60px;
+        }
+
+        .everything-header {
+            text-align: center;
+            margin-bottom: 70px;
+            animation: slideUp 0.6s ease-out 8.5s backwards;
+        }
+
+        .everything-title {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 58px;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .everything-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            max-width: 950px;
+            margin: 0 auto;
+        }
+
+        .need-card {
+            background: linear-gradient(135deg, rgba(255, 184, 0, 0.1), rgba(0, 255, 136, 0.05));
+            border: 2px solid rgba(255, 184, 0, 0.3);
+            border-radius: 20px;
+            padding: 30px 25px;
+            text-align: center;
+            opacity: 0;
+        }
+
+        .need-card:nth-child(1) { animation: popIn 0.4s ease-out 9s forwards; }
+        .need-card:nth-child(2) { animation: popIn 0.4s ease-out 9.2s forwards; }
+        .need-card:nth-child(3) { animation: popIn 0.4s ease-out 9.4s forwards; }
+        .need-card:nth-child(4) { animation: popIn 0.4s ease-out 9.6s forwards; }
+        .need-card:nth-child(5) { animation: popIn 0.4s ease-out 9.8s forwards; }
+        .need-card:nth-child(6) { animation: popIn 0.4s ease-out 10s forwards; }
+
+        .need-emoji {
+            font-size: 56px;
+            margin-bottom: 15px;
+        }
+
+        .need-label {
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .need-module {
+            font-size: 22px;
+            color: #FFB800;
+            font-weight: 700;
+        }
+
+        /* SCENE 4: LE GRAND VILLAGE CIRCULAIRE */
+        .scene-4 {
+            animation-delay: 12s;
+            background: 
+                radial-gradient(circle at 50% 50%, rgba(0, 255, 136, 0.2) 0%, transparent 60%),
+                #0A0A0A;
+        }
+
+        .village-container {
+            text-align: center;
+            max-width: 900px;
+        }
+
+        .village-title {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 62px;
+            font-weight: 800;
+            margin-bottom: 60px;
+            animation: slideUp 0.6s ease-out 12.5s backwards;
+        }
+
+        .circular-flow {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            margin: 0 auto;
+            animation: rotate360 20s linear infinite 13s;
+        }
+
+        .flow-item {
+            position: absolute;
+            width: 140px;
+            text-align: center;
+            opacity: 0;
+        }
+
+        .flow-item:nth-child(1) {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: fadeIn 0.5s ease-out 13s forwards;
+        }
+
+        .flow-item:nth-child(2) {
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            animation: fadeIn 0.5s ease-out 13.3s forwards;
+        }
+
+        .flow-item:nth-child(3) {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: fadeIn 0.5s ease-out 13.6s forwards;
+        }
+
+        .flow-item:nth-child(4) {
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            animation: fadeIn 0.5s ease-out 13.9s forwards;
+        }
+
+        .flow-emoji {
+            font-size: 64px;
+            margin-bottom: 12px;
+        }
+
+        .flow-text {
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .village-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            animation: pulse 2s infinite 14s;
+        }
+
+        .village-center-icon {
+            font-size: 120px;
+            margin-bottom: 15px;
+        }
+
+        .village-center-text {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            color: #FFB800;
+        }
+
+        .village-message {
+            font-size: 38px;
+            margin-top: 70px;
+            color: #00FF88;
+            font-weight: 700;
+            animation: slideUp 0.6s ease-out 14.5s backwards;
+        }
+
+        /* SCENE 5: VS GOOGLE/UBER - Comparaison */
+        .scene-5 {
+            animation-delay: 16s;
+            background: linear-gradient(135deg, #1A1A1A, #0A0A0A);
+            padding: 120px 70px;
+        }
+
+        .vs-header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: slideUp 0.6s ease-out 16.5s backwards;
+        }
+
+        .vs-title {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 56px;
+            font-weight: 800;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            max-width: 950px;
+            margin: 0 auto;
+            animation: slideUp 0.6s ease-out 17s backwards;
+        }
+
+        .comparison-side {
+            padding: 45px 35px;
+            border-radius: 25px;
+        }
+
+        .comparison-side.them {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(255, 51, 102, 0.1));
+            border: 2px solid rgba(255, 107, 53, 0.4);
+        }
+
+        .comparison-side.us {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(255, 184, 0, 0.1));
+            border: 2px solid rgba(0, 255, 136, 0.4);
+        }
+
+        .comparison-label {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 35px;
+            text-align: center;
+        }
+
+        .comparison-list {
+            list-style: none;
+        }
+
+        .comparison-list li {
+            font-size: 26px;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .comparison-list.them li::before {
+            content: '✗ ';
+            color: #FF6B35;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .comparison-list.us li::before {
+            content: '✓ ';
+            color: #00FF88;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* SCENE 6: LA SOUVERAINETÉ */
+        .scene-6 {
+            animation-delay: 20s;
+            background: 
+                radial-gradient(circle at 50% 50%, rgba(255, 184, 0, 0.25) 0%, transparent 60%),
+                #0A0A0A;
+        }
+
+        .sovereignty-container {
+            text-align: center;
+            max-width: 900px;
+        }
+
+        .sovereignty-icon {
+            font-size: 150px;
+            margin-bottom: 50px;
+            animation: pulse 2s infinite 20.5s;
+        }
+
+        .sovereignty-title {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 56px;
+            font-weight: 800;
+            margin-bottom: 40px;
+            line-height: 1.4;
+            animation: slideUp 0.6s ease-out 20.5s backwards;
+        }
+
+        .sovereignty-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 60px;
+            animation: slideUp 0.6s ease-out 21s backwards;
+        }
+
+        .stat-box {
+            background: rgba(255, 184, 0, 0.1);
+            padding: 35px 25px;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 184, 0, 0.3);
+        }
+
+        .stat-number {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 58px;
+            color: #FFB800;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .stat-label {
+            font-size: 24px;
+            color: #A8A8A8;
+        }
+
+        /* SCENE 7: CTA FINAL */
+        .scene-7 {
+            animation-delay: 24s;
+            background: 
+                radial-gradient(circle at 50% 40%, rgba(255, 184, 0, 0.2) 0%, transparent 60%),
+                radial-gradient(circle at 50% 70%, rgba(0, 255, 136, 0.15) 0%, transparent 50%),
+                #0A0A0A;
+        }
+
+        .cta-header {
+            text-align: center;
+            margin-bottom: 70px;
+            animation: slideUp 0.6s ease-out 24.5s backwards;
+        }
+
+        .final-phrase {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 76px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFB800, #00FF88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 35px;
+            line-height: 1.3;
+        }
+
+        .final-subtext {
+            font-size: 42px;
+            color: #A8A8A8;
+            line-height: 1.6;
+        }
+
+        .cta-actions {
+            text-align: center;
+            margin-top: 60px;
+            animation: slideUp 0.6s ease-out 25s backwards;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 35px 75px;
+            background: linear-gradient(135deg, #FFB800, #D49700);
+            color: #0A0A0A;
+            font-family: 'Unbounded', sans-serif;
+            font-size: 38px;
+            font-weight: 700;
+            border-radius: 70px;
+            border: none;
+            cursor: pointer;
+            animation: pulse 1.5s infinite 25.5s;
+            margin-bottom: 40px;
+        }
+
+        .cta-footer {
+            text-align: center;
+            animation: fadeIn 1s ease-out 26s backwards;
+        }
+
+        .urgency-text {
+            font-size: 34px;
+            color: #FFB800;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        .contact-info {
+            font-size: 30px;
+            color: #A8A8A8;
+            line-height: 1.7;
+        }
+
+        .contact-highlight {
+            color: #FFB800;
+            font-weight: 600;
+        }
+
+        /* WATERMARK */
+        .watermark {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            font-family: 'Unbounded', sans-serif;
+            font-size: 22px;
+            color: rgba(255, 184, 0, 0.2);
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        /* SOUND TOGGLE */
+        .sound-toggle {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 184, 0, 0.2);
+            border: 2px solid rgba(255, 184, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 9999;
+            transition: all 0.3s;
+        }
+
+        .sound-toggle:hover {
+            background: rgba(255, 184, 0, 0.4);
+            transform: scale(1.1);
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes popIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes rotate360 {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container">
+        
+        <!-- SOUND TOGGLE -->
+        <div class="sound-toggle" id="soundToggle">🔊</div>
+        
+        <!-- SCENE 1: LES QUESTIONS QUOTIDIENNES -->
+        <div class="scene scene-1">
+            <div class="questions-container">
+                <div class="question-item">
+                    <div class="question-emoji">🚗</div>
+                    <div class="question-text">
+                        "Je cherche une voiture..."
+                    </div>
+                    <div class="old-solution">Uber ? 25% de commission</div>
+                </div>
+                <div class="question-item">
+                    <div class="question-emoji">🍽️</div>
+                    <div class="question-text">
+                        "Je veux sortir au resto..."
+                    </div>
+                    <div class="old-solution">Google ? Impersonnel</div>
+                </div>
+                <div class="question-item">
+                    <div class="question-emoji">💇</div>
+                    <div class="question-text">
+                        "Besoin d'une belle coupe..."
+                    </div>
+                    <div class="old-solution">Où chercher ?</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCENE 2: LA RÉVÉLATION -->
+        <div class="scene scene-2">
+            <div class="revelation-container">
+                <div class="revelation-icon">💡</div>
+                <div class="revelation-phrase">
+                    VAS CHEZ<br/>DIGIY
+                </div>
+                <div class="revelation-subtitle">
+                    Une seule réponse.<br/>Pour tout.
+                </div>
+            </div>
+        </div>
+
+        <!-- SCENE 3: TOUT EST LÀ -->
+        <div class="scene scene-3">
+            <div class="everything-header">
+                <div class="everything-title">Tout est là !</div>
+            </div>
+            
+            <div class="everything-grid">
+                <div class="need-card">
+                    <div class="need-emoji">🚗</div>
+                    <div class="need-label">Voiture ?</div>
+                    <div class="need-module">DIGIY DRIVER</div>
+                </div>
+                <div class="need-card">
+                    <div class="need-emoji">🍽️</div>
+                    <div class="need-label">Resto ?</div>
+                    <div class="need-module">DIGIY RESTO</div>
+                </div>
+                <div class="need-card">
+                    <div class="need-emoji">💇</div>
+                    <div class="need-label">Coiffeur ?</div>
+                    <div class="need-module">DIGIY BEAUTY</div>
+                </div>
+                <div class="need-card">
+                    <div class="need-emoji">🏠</div>
+                    <div class="need-label">Logement ?</div>
+                    <div class="need-module">DIGIY LOC</div>
+                </div>
+                <div class="need-card">
+                    <div class="need-emoji">🛒</div>
+                    <div class="need-label">Shopping ?</div>
+                    <div class="need-module">DIGIY MARKET</div>
+                </div>
+                <div class="need-card">
+                    <div class="need-emoji">💼</div>
+                    <div class="need-label">Confrères ?</div>
+                    <div class="need-module">DIGIY JOBS</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCENE 4: LE GRAND VILLAGE -->
+        <div class="scene scene-4">
+            <div class="village-container">
+                <div class="village-title">Le grand village circulaire</div>
+                
+                <div class="circular-flow">
+                    <div class="flow-item">
+                        <div class="flow-emoji">🧑‍💼</div>
+                        <div class="flow-text">Pro africain<br/>propose</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-emoji">🤝</div>
+                        <div class="flow-text">Client africain<br/>achète</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-emoji">💰</div>
+                        <div class="flow-text">Argent reste<br/>en Afrique</div>
+                    </div>
+                    <div class="flow-item">
+                        <div class="flow-emoji">♻️</div>
+                        <div class="flow-text">Économie<br/>circulaire</div>
+                    </div>
+                    
+                    <div class="village-center">
+                        <div class="village-center-icon">🌍</div>
+                        <div class="village-center-text">DIGIY</div>
+                    </div>
+                </div>
+                
+                <div class="village-message">
+                    L'argent tourne entre nous !
+                </div>
+            </div>
+        </div>
+
+        <!-- SCENE 5: VS GOOGLE/UBER -->
+        <div class="scene scene-5">
+            <div class="vs-header">
+                <div class="vs-title">La différence</div>
+            </div>
+            
+            <div class="comparison-grid">
+                <div class="comparison-side them">
+                    <div class="comparison-label">GOOGLE/UBER</div>
+                    <ul class="comparison-list them">
+                        <li>Impersonnel</li>
+                        <li>Occidental</li>
+                        <li>Exploite</li>
+                        <li>$ part aux USA</li>
+                        <li>Deuxième main</li>
+                        <li>20-30% volés</li>
+                    </ul>
+                </div>
+                
+                <div class="comparison-side us">
+                    <div class="comparison-label">DIGIY</div>
+                    <ul class="comparison-list us">
+                        <li>Personnel</li>
+                        <li>Africain</li>
+                        <li>Libère</li>
+                        <li>$ reste ici</li>
+                        <li>Première main</li>
+                        <li>0% commission</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCENE 6: LA SOUVERAINETÉ -->
+        <div class="scene scene-6">
+            <div class="sovereignty-container">
+                <div class="sovereignty-icon">🦅</div>
+                <div class="sovereignty-title">
+                    La souveraineté<br/>digitale africaine
+                </div>
+                
+                <div class="sovereignty-stats">
+                    <div class="stat-box">
+                        <div class="stat-number">0%</div>
+                        <div class="stat-label">Commission</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">11</div>
+                        <div class="stat-label">Modules</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Pour toi</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCENE 7: CTA FINAL -->
+        <div class="scene scene-7">
+            <div class="cta-header">
+                <div class="final-phrase">
+                    VAS CHEZ<br/>DIGIY
+                </div>
+                <div class="final-subtext">
+                    Notre village.<br/>
+                    Notre terroir.<br/>
+                    Notre souveraineté.
+                </div>
+            </div>
+            
+            <div class="cta-actions">
+                <button class="cta-button">REJOINS LE VILLAGE</button>
+            </div>
+            
+            <div class="cta-footer">
+                <div class="urgency-text">
+                    🔥 87 places pionniers • 29,900 F/mois À VIE
+                </div>
+                <div class="contact-info">
+                    <span class="contact-highlight">📱 +221 77 134 28 89</span><br/>
+                    <span class="contact-highlight">digiylyfe.com</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="watermark">∞ DIGIY</div>
+
+    </div>
+
+    <script>
+        // WEB AUDIO API
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let soundEnabled = true;
+
+        function playSound(frequency, duration, type = 'sine', volume = 0.2) {
+            if (!soundEnabled) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = type;
+            
+            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        const soundSchedule = [
+            // Scene 1: Questions
+            { time: 500, freq: 330, duration: 0.3, volume: 0.2 },
+            { time: 1200, freq: 330, duration: 0.3, volume: 0.2 },
+            { time: 1900, freq: 330, duration: 0.3, volume: 0.2 },
+            
+            // Scene 2: Révélation
+            { time: 4000, freq: 550, duration: 0.5, volume: 0.25 },
+            { time: 5000, freq: 880, duration: 0.7, volume: 0.3 },
+            
+            // Scene 3: Modules
+            { time: 9000, freq: 440, duration: 0.1, volume: 0.2 },
+            { time: 9200, freq: 440, duration: 0.1, volume: 0.2 },
+            { time: 9400, freq: 440, duration: 0.1, volume: 0.2 },
+            { time: 9600, freq: 440, duration: 0.1, volume: 0.2 },
+            { time: 9800, freq: 440, duration: 0.1, volume: 0.2 },
+            { time: 10000, freq: 440, duration: 0.1, volume: 0.2 },
+            
+            // Scene 4: Village
+            { time: 12000, freq: 660, duration: 0.5, volume: 0.25 },
+            { time: 13000, freq: 550, duration: 0.3, volume: 0.2 },
+            { time: 14500, freq: 880, duration: 0.5, volume: 0.3 },
+            
+            // Scene 5: Comparaison
+            { time: 16000, freq: 440, duration: 0.4, volume: 0.2 },
+            { time: 17000, freq: 660, duration: 0.5, volume: 0.25 },
+            
+            // Scene 6: Souveraineté
+            { time: 20000, freq: 880, duration: 0.6, volume: 0.3 },
+            { time: 21000, freq: 1100, duration: 0.5, volume: 0.3 },
+            
+            // Scene 7: CTA
+            { time: 24000, freq: 880, duration: 0.5, volume: 0.3 },
+            { time: 25500, freq: 1100, duration: 0.4, volume: 0.3 },
+        ];
+
+        function startSoundtrack() {
+            soundSchedule.forEach(sound => {
+                setTimeout(() => {
+                    playSound(sound.freq, sound.duration, 'sine', sound.volume);
+                }, sound.time);
+            });
+        }
+
+        const soundToggle = document.getElementById('soundToggle');
+        soundToggle.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
+        });
+
+        startSoundtrack();
+
+        setTimeout(() => {
+            location.reload();
+        }, 28000);
+    </script>
+</body>
+</html>
