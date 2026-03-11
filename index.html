@@ -31,6 +31,42 @@
             overflow: hidden;
         }
 
+        .site-back-float {
+            position: fixed;
+            top: clamp(15px, 3vh, 30px);
+            left: clamp(15px, 3vw, 30px);
+            z-index: 9998;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 46px;
+            padding: 11px 15px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(12px, 3vw, 14px);
+            font-weight: 700;
+            color: #FFFFFF;
+            background: rgba(255, 184, 0, 0.14);
+            border: 2px solid rgba(255, 184, 0, 0.45);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 14px 30px rgba(0,0,0,.28);
+            transition: transform .2s ease, background .2s ease, border-color .2s ease;
+            touch-action: manipulation;
+        }
+
+        .site-back-float:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 184, 0, 0.24);
+            border-color: rgba(255, 184, 0, 0.75);
+        }
+
+        .site-back-float:active {
+            transform: scale(0.96);
+        }
+
         .scene {
             position: absolute;
             width: 100%;
@@ -620,6 +656,8 @@
 <body>
     <div class="video-container">
         
+        <a class="site-back-float" href="https://digiylyfe.com/" target="_blank" rel="noopener">← Retour au site</a>
+
         <!-- SOUND TOGGLE -->
         <div class="sound-toggle" id="soundToggle">🔊</div>
         
@@ -857,37 +895,30 @@
         }
 
         const soundSchedule = [
-            // Scene 1: Questions
             { time: 500, freq: 330, duration: 0.3, volume: 0.2 },
             { time: 1200, freq: 330, duration: 0.3, volume: 0.2 },
             { time: 1900, freq: 330, duration: 0.3, volume: 0.2 },
-            
-            // Scene 2: Révélation
+
             { time: 4000, freq: 550, duration: 0.5, volume: 0.25 },
             { time: 5000, freq: 880, duration: 0.7, volume: 0.3 },
-            
-            // Scene 3: Modules
+
             { time: 9000, freq: 440, duration: 0.1, volume: 0.2 },
             { time: 9200, freq: 440, duration: 0.1, volume: 0.2 },
             { time: 9400, freq: 440, duration: 0.1, volume: 0.2 },
             { time: 9600, freq: 440, duration: 0.1, volume: 0.2 },
             { time: 9800, freq: 440, duration: 0.1, volume: 0.2 },
             { time: 10000, freq: 440, duration: 0.1, volume: 0.2 },
-            
-            // Scene 4: Village
+
             { time: 12000, freq: 660, duration: 0.5, volume: 0.25 },
             { time: 13000, freq: 550, duration: 0.3, volume: 0.2 },
             { time: 14500, freq: 880, duration: 0.5, volume: 0.3 },
-            
-            // Scene 5: Comparaison
+
             { time: 16000, freq: 440, duration: 0.4, volume: 0.2 },
             { time: 17000, freq: 660, duration: 0.5, volume: 0.25 },
-            
-            // Scene 6: Souveraineté
+
             { time: 20000, freq: 880, duration: 0.6, volume: 0.3 },
             { time: 21000, freq: 1100, duration: 0.5, volume: 0.3 },
-            
-            // Scene 7: CTA
+
             { time: 24000, freq: 880, duration: 0.5, volume: 0.3 },
             { time: 25500, freq: 1100, duration: 0.4, volume: 0.3 },
         ];
@@ -905,13 +936,11 @@
             soundEnabled = !soundEnabled;
             soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
             
-            // Resume AudioContext on first interaction (required by browsers)
             if (audioContext.state === 'suspended') {
                 audioContext.resume();
             }
         });
 
-        // Start on user interaction
         document.addEventListener('click', () => {
             if (audioContext.state === 'suspended') {
                 audioContext.resume();
