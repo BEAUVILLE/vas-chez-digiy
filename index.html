@@ -446,134 +446,245 @@ function ringPulse(){
 }
 
 /* =====================================================
-   AFROBEAT SYNTH ENGINE
+   🎷 SAX AFROBEAT ENGINE — GO GO GO
 ===================================================== */
 let AC=null,MG=null,sndOn=true,started=false;
 
 function initAC(){
   if(AC)return;
   AC=new(window.AudioContext||window.webkitAudioContext)();
-  MG=AC.createGain();MG.gain.value=.75;MG.connect(AC.destination);
+  MG=AC.createGain();MG.gain.value=.82;MG.connect(AC.destination);
 }
 
+/* ── KICK : punch profond ── */
 function kick(t){
   if(!sndOn||!AC)return;
+  // Tone sweep
   const o=AC.createOscillator(),g=AC.createGain();
-  o.connect(g);g.connect(MG);
-  o.type='sine';
-  o.frequency.setValueAtTime(185,t);
-  o.frequency.exponentialRampToValueAtTime(38,t+.32);
-  g.gain.setValueAtTime(1,t);g.gain.exponentialRampToValueAtTime(.001,t+.38);
+  o.connect(g);g.connect(MG);o.type='sine';
+  o.frequency.setValueAtTime(200,t);o.frequency.exponentialRampToValueAtTime(40,t+.28);
+  g.gain.setValueAtTime(1.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.36);
   o.start(t);o.stop(t+.4);
-  // schedule visual
+  // Click transient
+  const o2=AC.createOscillator(),g2=AC.createGain();
+  o2.connect(g2);g2.connect(MG);o2.type='square';o2.frequency.value=100;
+  g2.gain.setValueAtTime(.5,t);g2.gain.exponentialRampToValueAtTime(.001,t+.025);
+  o2.start(t);o2.stop(t+.03);
   const delay=(t-AC.currentTime)*1000;
   if(delay>=0)setTimeout(ringPulse,delay);
 }
 
+/* ── SNARE : claquant ── */
 function snare(t){
   if(!sndOn||!AC)return;
-  const sz=AC.sampleRate*.14;
-  const buf=AC.createBuffer(1,sz,AC.sampleRate);
-  const d=buf.getChannelData(0);
+  const sr=AC.sampleRate,sz=sr*.13;
+  const buf=AC.createBuffer(1,sz,sr),d=buf.getChannelData(0);
   for(let i=0;i<sz;i++)d[i]=Math.random()*2-1;
   const n=AC.createBufferSource();n.buffer=buf;
-  const f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=1100;f.Q.value=.6;
-  const g=AC.createGain();
-  n.connect(f);f.connect(g);g.connect(MG);
-  g.gain.setValueAtTime(.4,t);g.gain.exponentialRampToValueAtTime(.001,t+.14);
-  n.start(t);n.stop(t+.15);
+  const f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=1200;f.Q.value=.7;
+  const g=AC.createGain();n.connect(f);f.connect(g);g.connect(MG);
+  g.gain.setValueAtTime(.5,t);g.gain.exponentialRampToValueAtTime(.001,t+.13);
+  n.start(t);n.stop(t+.14);
   const o=AC.createOscillator(),g2=AC.createGain();
-  o.connect(g2);g2.connect(MG);
-  o.type='triangle';o.frequency.setValueAtTime(215,t);o.frequency.exponentialRampToValueAtTime(75,t+.08);
-  g2.gain.setValueAtTime(.22,t);g2.gain.exponentialRampToValueAtTime(.001,t+.1);
+  o.connect(g2);g2.connect(MG);o.type='triangle';
+  o.frequency.setValueAtTime(230,t);o.frequency.exponentialRampToValueAtTime(80,t+.07);
+  g2.gain.setValueAtTime(.28,t);g2.gain.exponentialRampToValueAtTime(.001,t+.09);
   o.start(t);o.stop(t+.1);
 }
 
-function hat(t,vol){
+/* ── HI-HAT ── */
+function hat(t,vol,open){
   if(!sndOn||!AC)return;
-  const sz=AC.sampleRate*.038;
-  const buf=AC.createBuffer(1,sz,AC.sampleRate);
-  const d=buf.getChannelData(0);for(let i=0;i<sz;i++)d[i]=Math.random()*2-1;
+  const dur=open?.25:.04,sr=AC.sampleRate,sz=Math.floor(sr*dur);
+  const buf=AC.createBuffer(1,sz,sr),d=buf.getChannelData(0);
+  for(let i=0;i<sz;i++)d[i]=Math.random()*2-1;
   const n=AC.createBufferSource();n.buffer=buf;
-  const f=AC.createBiquadFilter();f.type='highpass';f.frequency.value=7500;
+  const f=AC.createBiquadFilter();f.type='highpass';f.frequency.value=8000;
   const g=AC.createGain();n.connect(f);f.connect(g);g.connect(MG);
-  g.gain.setValueAtTime(vol||.16,t);g.gain.exponentialRampToValueAtTime(.001,t+.038);
-  n.start(t);n.stop(t+.04);
+  g.gain.setValueAtTime(vol||.15,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  n.start(t);n.stop(t+dur+.01);
 }
 
+/* ── BASS : sawtooth grove ── */
 function bass(t,freq,dur){
   if(!sndOn||!AC)return;
   const o=AC.createOscillator(),f=AC.createBiquadFilter(),g=AC.createGain();
   o.connect(f);f.connect(g);g.connect(MG);
-  f.type='lowpass';f.frequency.setValueAtTime(600,t);f.frequency.exponentialRampToValueAtTime(180,t+dur);
+  f.type='lowpass';f.frequency.setValueAtTime(700,t);f.frequency.exponentialRampToValueAtTime(200,t+dur);
   o.type='sawtooth';o.frequency.value=freq;
-  g.gain.setValueAtTime(.55,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);
-  o.start(t);o.stop(t+dur+.05);
+  // pitch ghost on attack for funk feel
+  o.frequency.setValueAtTime(freq*1.02,t);o.frequency.linearRampToValueAtTime(freq,t+.04);
+  g.gain.setValueAtTime(.65,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o.start(t);o.stop(t+dur+.06);
 }
 
-function mel(t,freq,dur,vol){
+/* ══════════════════════════════════════════════════
+   🎷 SAXOPHONE SYNTHESIS
+   Sawtooth + Square blend → bandpass formant filter
+   → vibrato LFO → ADSR envelope
+   + breath noise layer
+══════════════════════════════════════════════════ */
+function sax(t,freq,dur,vol,harmony){
   if(!sndOn||!AC)return;
-  const o=AC.createOscillator(),g=AC.createGain();
-  o.connect(g);g.connect(MG);
-  o.type='triangle';o.frequency.value=freq;
-  g.gain.setValueAtTime(vol||.11,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);
-  o.start(t);o.stop(t+dur+.05);
+  vol=vol||.22;
+  const env=AC.createGain();env.connect(MG);
+
+  /* Oscillators: sawtooth (main) + square (reed bite) */
+  const o1=AC.createOscillator(),o2=AC.createOscillator();
+  o1.type='sawtooth';o2.type='square';
+
+  /* Pitch scoop up (characteristic sax attack) */
+  o1.frequency.setValueAtTime(freq*.96,t);o1.frequency.linearRampToValueAtTime(freq,t+.04);
+  o2.frequency.setValueAtTime(freq*.96,t);o2.frequency.linearRampToValueAtTime(freq,t+.04);
+
+  /* Mix: main saw louder, square adds bite */
+  const g1=AC.createGain(),g2=AC.createGain();
+  g1.gain.value=1;g2.gain.value=.35;
+  o1.connect(g1);o2.connect(g2);
+
+  /* Sax body formant (bandpass tuned to 2nd harmonic) */
+  const bp=AC.createBiquadFilter();
+  bp.type='bandpass';bp.frequency.value=Math.min(freq*2.4,2400);bp.Q.value=1.8;
+  /* Presence boost */
+  const pk=AC.createBiquadFilter();
+  pk.type='peaking';pk.frequency.value=1100;pk.gain.value=5;pk.Q.value=1.2;
+  /* Low cut (remove muddiness) */
+  const hp=AC.createBiquadFilter();
+  hp.type='highpass';hp.frequency.value=150;
+
+  g1.connect(bp);g2.connect(bp);bp.connect(pk);pk.connect(hp);hp.connect(env);
+
+  /* Vibrato LFO (kicks in after 60ms for expression) */
+  const lfo=AC.createOscillator(),lfoG=AC.createGain();
+  lfo.type='sine';lfo.frequency.value=5.8+Math.random()*.4;
+  lfoG.gain.setValueAtTime(0,t);
+  lfoG.gain.linearRampToValueAtTime(freq*.012,t+Math.min(.08,dur*.35));
+  lfo.connect(lfoG);lfoG.connect(o1.frequency);lfoG.connect(o2.frequency);
+
+  /* Breath noise layer (adds realism) */
+  if(dur>.08){
+    const nsz=Math.min(Math.floor(AC.sampleRate*dur),AC.sampleRate*.5);
+    const nb=AC.createBuffer(1,nsz,AC.sampleRate);
+    const nd=nb.getChannelData(0);
+    for(let i=0;i<nsz;i++)nd[i]=(Math.random()*2-1)*.05;
+    const ns=AC.createBufferSource();ns.buffer=nb;
+    const nf=AC.createBiquadFilter();nf.type='bandpass';nf.frequency.value=freq*1.6;nf.Q.value=2.5;
+    const ng=AC.createGain();ng.gain.value=.18;
+    ns.connect(nf);nf.connect(ng);ng.connect(env);
+    ns.start(t);ns.stop(t+dur+.02);
+  }
+
+  /* ADSR */
+  const att=.032,dec=.055,sus=vol*.88,rel=Math.min(.12,dur*.22);
+  env.gain.setValueAtTime(.001,t);
+  env.gain.linearRampToValueAtTime(vol,t+att);
+  env.gain.linearRampToValueAtTime(sus,t+att+dec);
+  env.gain.setValueAtTime(sus,Math.max(t+att+dec+.01,t+dur-rel));
+  env.gain.exponentialRampToValueAtTime(.001,t+dur);
+
+  [o1,o2,lfo].forEach(o=>{o.start(t);o.stop(t+dur+.08)});
+
+  /* Optional harmony (perfect 5th above, quieter) */
+  if(harmony){sax(t,freq*1.498,dur,vol*.28,false);}
 }
 
+/* ══════════════════════════════════════════════════
+   GROOVE SCHEDULER — 126 BPM AFROBEAT
+══════════════════════════════════════════════════ */
 function schedule(){
   if(!AC)return;
-  const BPM=114,b=60/BPM; // ~0.526s per beat
-  // 16th note grid: b/2 per step
-  const S=b/2;
-  const t0=AC.currentTime+.08;
-  const totalS=Math.ceil(28/S)+4;
+  const BPM=126,b=60/BPM;  // beat ≈ .476s
+  const S=b/2;              // 16th note ≈ .238s
+  const t0=AC.currentTime+.06;
+  const BARS=Math.ceil(30/(S*16))+1;
 
-  // Pentatonic D major: D4 F#4 A4 B4 D5 F#5
-  const P5=[293.66,369.99,440,493.88,587.33,739.99];
-  // Bass octave lower: D2 F#2 A2 B2
-  const BN=[73.4,92.5,110,123.47];
+  /* ── Note frequencies (D Dorian) ── */
+  const D3=146.83,G3=196,A3=220,C4=261.63;
+  const D4=293.66,F4=349.23,G4=392,A4=440,Bb4=466.16,C5=523.25,D5=587.33,F5=698.46;
 
-  // 16-step pattern
-  const Kp=[1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0]; // kick
-  const Sp=[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0]; // snare
-  const Hp=[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]; // hihat
-  const Ho=[0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0]; // open hat
+  /* ── SAX RIFF A (bar 1) — Questions / montée ── */
+  //  step: note, dur_in_16ths, vol
+  const RIFF_A=[
+    [0, D4,2,.24],[2,G4,1,.22],[3,A4,1,.24],
+    [4,Bb4,2,.26],[6,G4,1,.22],[7,F4,1,.20],
+    [8, D4,2,.22],[10,F4,2,.22],
+    [12,G4,1,.22],[13,A4,1,.24],[14,Bb4,2,.28]
+  ];
+  /* ── SAX RIFF B (bar 2) — Réponse / descente ── */
+  const RIFF_B=[
+    [0, D5,2,.3],[2,C5,2,.28],
+    [4,Bb4,1,.26],[5,A4,1,.24],
+    [6, G4,2,.22],[8,A4,2,.24],
+    [10,G4,1,.22],[11,F4,1,.20],
+    [12,D4,2,.22],[14,F4,1,.18],[15,G4,1,.20]
+  ];
+  /* ── SAX RIFF C (bar 3, variation énergique) ── */
+  const RIFF_C=[
+    [0, G4,1,.24],[1,A4,1,.24],[2,Bb4,2,.28],
+    [4, C5,1,.26],[5,D5,1,.30],[6,C5,2,.28],
+    [8, Bb4,1,.26],[9,A4,1,.24],[10,G4,2,.24],
+    [12,F4,2,.22],[14,G4,1,.20],[15,A4,1,.22]
+  ];
+  /* ── SAX RIFF D (bar 4, final punch) ── */
+  const RIFF_D=[
+    [0, D5,1,.32],[1,C5,1,.28],[2,Bb4,1,.26],[3,A4,1,.24],
+    [4, G4,2,.24],[6,A4,1,.22],[7,Bb4,1,.26],
+    [8, C5,2,.28],[10,D5,2,.32],
+    [12,C5,1,.28],[13,Bb4,1,.26],[14,A4,2,.24]
+  ];
+  const RIFFS=[RIFF_A,RIFF_B,RIFF_C,RIFF_D];
 
-  // Bass: step → [note_idx, dur_in_16ths]
-  const Bp={0:[0,3],8:[1,2],10:[2,1.5],14:[3,1]};
-  
-  // Melody arp pattern (starts bar 2)
-  const Mp=[0,-1,2,-1,1,-1,3,-1,4,-1,2,-1,0,-1,3,-1];
+  /* ── BASS LINE ── */
+  const BASS_PAT=[
+    [0,D3,1.8],[2,D3,.8],[3,G3,.9],[4,A3,1.6],
+    [6,G3,.9],[8,D3,1.8],[10,A3,1.2],
+    [12,C4,.9],[13,D3,.9],[14,G3,1.8]
+  ];
 
-  for(let i=0;i<totalS;i++){
-    const t=t0+i*S;
-    if(t-t0>29)break;
-    const si=i%16; // step in bar
-    const bar=Math.floor(i/16);
-    const fade=Math.max(0,1-Math.max(0,(t-t0-22)/6)); // fade out last 6s
+  /* ── RHYTHM PATTERNS (16 steps) ── */
+  const Kp=[1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0]; // kick energique
+  const K2=[1,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0]; // kick variation
+  const Sp=[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0]; // snare 2 et 4
+  const Hn=[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]; // hihat 8ths
+  const Ho=[0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1]; // open hat
 
-    if(Kp[si])kick(t);
-    // extra syncopated kick
-    if(si===12&&bar%2===1)kick(t);
+  for(let bar=0;bar<BARS;bar++){
+    const tBar=t0+bar*S*16;
+    if(tBar-t0>29.5)break;
 
-    if(Sp[si])snare(t);
-    if(Hp[si])hat(t,.14*fade);
-    if(Ho[si])hat(t,.24*fade);
+    const fade=Math.max(.05,1-Math.max(0,(tBar-t0-22)/6));
+    const kpat=bar%3===2?K2:Kp;
 
-    if(Bp[si]){
-      const[ni,dl]=Bp[si];
-      bass(t,BN[ni],dl*S*.9);
+    for(let si=0;si<16;si++){
+      const t=tBar+si*S;
+      if(t-t0>29.8)break;
+
+      /* Rythme */
+      if(kpat[si])kick(t);
+      if(Sp[si])snare(t);
+      if(Hn[si])hat(t,.16*fade,false);
+      if(Ho[si])hat(t,.26*fade,true);
+
+      /* Basse (dès bar 0) */
+      BASS_PAT.forEach(([step,freq,dl])=>{
+        if(si===step)bass(t,freq,dl*S*.88);
+      });
     }
 
-    // Melody: only from bar 1 onwards, fade out
-    if(bar>=1&&Mp[si]>=0&&si%2===0){
-      mel(t,P5[Mp[si]],S*1.4,(bar>=6?.06:.12)*fade);
+    /* SAX : entre à bar 1 (intro = juste groove) */
+    if(bar>=1){
+      const riff=RIFFS[(bar-1)%4];
+      riff.forEach(([step,freq,dl,vol])=>{
+        const t=tBar+step*S;
+        if(t-t0>29.8)return;
+        const v=(vol||.22)*fade;
+        sax(t,freq,dl*S*.9,v, bar%4===3); // harmonie sur le 4e bar
+      });
     }
-    // Chord stabs every 4 bars on beat 1
-    if(si===0&&bar>0&&bar%4===0){
-      mel(t,P5[0],b*.4,.08);
-      mel(t,P5[2],b*.4,.06);
-      mel(t,P5[4],b*.4,.06);
+
+    /* Stab d'accord (ponctuation toutes les 4 bars) */
+    if(bar>0&&bar%4===0&&fade>.2){
+      [D4,G4,D5].forEach((f,i)=>sax(tBar,f,b*.35,(i===0?.16:.1),false));
     }
   }
 }
