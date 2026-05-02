@@ -1,1008 +1,633 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>VAS CHEZ DIGIY - Le grand village digital africain</title>
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: 'Sora', sans-serif;
-            background: #0A0A0A;
-            color: #FFFFFF;
-            overflow: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .video-container {
-            width: 100vw;
-            height: 100vh;
-            background: #0A0A0A;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .digiy-floating-routes {
-            position: fixed;
-            top: clamp(15px, 3vh, 30px);
-            left: clamp(15px, 3vw, 30px);
-            z-index: 9998;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            max-width: calc(100vw - 110px);
-            flex-wrap: wrap;
-        }
-
-        .site-back-float,
-        .digiy-route-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-height: 46px;
-            padding: 11px 15px;
-            border-radius: 999px;
-            text-decoration: none;
-            font-family: 'Sora', sans-serif;
-            font-size: clamp(12px, 3vw, 14px);
-            font-weight: 700;
-            color: #FFFFFF;
-            background: rgba(255, 184, 0, 0.14);
-            border: 2px solid rgba(255, 184, 0, 0.45);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            box-shadow: 0 14px 30px rgba(0,0,0,.28);
-            transition: transform .2s ease, background .2s ease, border-color .2s ease;
-            touch-action: manipulation;
-        }
-
-        .site-back-float {
-            color: #0A0A0A;
-            background: linear-gradient(135deg, #FFB800, #00FF88);
-            border-color: rgba(255, 255, 255, 0.22);
-        }
-
-        .digiy-route-btn.hub {
-            background: rgba(0, 255, 136, 0.14);
-            border-color: rgba(0, 255, 136, 0.45);
-        }
-
-        .digiy-route-btn.tarifs {
-            background: rgba(255, 255, 255, 0.10);
-            border-color: rgba(255, 255, 255, 0.24);
-        }
-
-        .site-back-float:hover,
-        .digiy-route-btn:hover {
-            transform: translateY(-1px);
-            background: rgba(255, 184, 0, 0.24);
-            border-color: rgba(255, 184, 0, 0.75);
-        }
-
-        .site-back-float:active,
-        .digiy-route-btn:active {
-            transform: scale(0.96);
-        }
-
-        @media (max-width: 640px) {
-            .digiy-floating-routes {
-                top: 10px;
-                left: 10px;
-                max-width: calc(100vw - 82px);
-                gap: 6px;
-            }
-
-            .site-back-float,
-            .digiy-route-btn {
-                min-height: 42px;
-                padding: 10px 12px;
-                font-size: 13px;
-            }
-
-            .digiy-route-btn .route-label {
-                display: none;
-            }
-        }
-
-        .scene {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: clamp(40px, 8vh, 100px) clamp(20px, 5vw, 80px);
-            opacity: 0;
-            animation: fadeInOut 4s ease-in-out forwards;
-        }
-
-        /* SCENE 1: LES QUESTIONS QUOTIDIENNES */
-        .scene-1 {
-            animation-delay: 0s;
-            background: linear-gradient(135deg, #1A1A1A, #0A0A0A);
-            justify-content: center;
-        }
-
-        .questions-container {
-            text-align: center;
-            max-width: 100%;
-        }
-
-        .question-item {
-            margin: clamp(20px, 4vh, 35px) 0;
-            opacity: 0;
-        }
-
-        .question-item:nth-child(1) { animation: slideUp 0.6s ease-out 0.5s forwards; }
-        .question-item:nth-child(2) { animation: slideUp 0.6s ease-out 1.2s forwards; }
-        .question-item:nth-child(3) { animation: slideUp 0.6s ease-out 1.9s forwards; }
-
-        .question-emoji {
-            font-size: clamp(40px, 10vw, 72px);
-            margin-bottom: clamp(8px, 2vh, 15px);
-        }
-
-        .question-text {
-            font-size: clamp(20px, 5vw, 38px);
-            line-height: 1.5;
-            color: #A8A8A8;
-        }
-
-        .old-solution {
-            font-size: clamp(16px, 4vw, 32px);
-            color: #FF6B35;
-            margin-top: clamp(6px, 1.5vh, 12px);
-            text-decoration: line-through;
-            opacity: 0.6;
-        }
-
-        /* SCENE 2: LA RÉVÉLATION "VAS CHEZ DIGIY" */
-        .scene-2 {
-            animation-delay: 4s;
-            background: 
-                radial-gradient(circle at 50% 50%, rgba(255, 184, 0, 0.3) 0%, transparent 60%),
-                #0A0A0A;
-        }
-
-        .revelation-container {
-            text-align: center;
-        }
-
-        .revelation-icon {
-            font-size: clamp(80px, 20vw, 180px);
-            animation: zoomIn 1s ease-out 4.5s backwards;
-        }
-
-        .revelation-phrase {
-            font-family: 'Unbounded', sans-serif;
-            font-size: clamp(36px, 10vw, 82px);
-            font-weight: 800;
-            background: linear-gradient(135deg, #FFB800, #00FF88);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-top: clamp(25px, 5vh, 50px);
-            line-height: 1.3;
-            animation: slideUp 1s ease-out 5s backwards;
-        }
-
-        .revelation-subtitle {
-            font-size: clamp(20px, 5vw, 42px);
-            color: #A8A8A8;
-            margin-top: clamp(20px, 4vh, 40px);
-            animation: slideUp 1s ease-out 5.5s backwards;
-        }
-
-        /* SCENE 3: TOUT EST LÀ - Mobile single column */
-        .scene-3 {
-            animation-delay: 8s;
-            background: linear-gradient(135deg, #0A0A0A, #1A1A1A);
-            padding: clamp(40px, 8vh, 120px) clamp(20px, 4vw, 60px);
-        }
-
-        .everything-header {
-            text-align: center;
-            margin-bottom: clamp(30px, 6vh, 70px);
-            animation: slideUp 0.6s ease-out 8.5s backwards;
-        }
-
-        .everything-title {
-            font-family: 'Unbounded', sans-serif;
-            font-size: clamp(32px, 8vw, 58px);
-            font-weight: 800;
-            margin-bottom: clamp(10px, 2vh, 20px);
-        }
-
-        .everything-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: clamp(12px, 2.5vw, 25px);
-            max-width: 100%;
-            margin: 0 auto;
-        }
-
-        @media (max-width: 480px) {
-            .everything-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-            }
-        }
-
-        .need-card {
-            background: linear-gradient(135deg, rgba(255, 184, 0, 0.1), rgba(0, 255, 136, 0.05));
-            border: 2px solid rgba(255, 184, 0, 0.3);
-            border-radius: clamp(12px, 3vw, 20px);
-            padding: clamp(15px, 3vw, 30px) clamp(12px, 2.5vw, 25px);
-            text-align: center;
-            opacity: 0;
-        }
-
-        .need-card:nth-child(1) { animation: popIn 0.4s ease-out 9s forwards; }
-        .need-card:nth-child(2) { animation: popIn 0.4s ease-out 9.2s forwards; }
-        .need-card:nth-child(3) { animation: popIn 0.4s ease-out 9.4s forwards; }
-        .need-card:nth-child(4) { animation: popIn 0.4s ease-out 9.6s forwards; }
-        .need-card:nth-child(5) { animation: popIn 0.4s ease-out 9.8s forwards; }
-        .need-card:nth-child(6) { animation: popIn 0.4s ease-out 10s forwards; }
-
-        .need-emoji {
-            font-size: clamp(28px, 7vw, 56px);
-            margin-bottom: clamp(8px, 1.5vh, 15px);
-        }
-
-        .need-label {
-            font-size: clamp(14px, 3.5vw, 26px);
-            font-weight: 600;
-            margin-bottom: clamp(4px, 1vh, 8px);
-        }
-
-        .need-module {
-            font-size: clamp(12px, 3vw, 22px);
-            color: #FFB800;
-            font-weight: 700;
-        }
-
-        /* SCENE 4: LE GRAND VILLAGE CIRCULAIRE */
-        .scene-4 {
-            animation-delay: 12s;
-            background: 
-                radial-gradient(circle at 50% 50%, rgba(0, 255, 136, 0.2) 0%, transparent 60%),
-                #0A0A0A;
-        }
-
-        .village-container {
-            text-align: center;
-            max-width: 100%;
-        }
-
-        .village-title {
-            font-family: 'Unbounded', sans-serif;
-            font-size: clamp(28px, 7vw, 62px);
-            font-weight: 800;
-            margin-bottom: clamp(30px, 6vh, 60px);
-            animation: slideUp 0.6s ease-out 12.5s backwards;
-        }
-
-        .circular-flow {
-            position: relative;
-            width: clamp(280px, 70vw, 600px);
-            height: clamp(280px, 70vw, 600px);
-            margin: 0 auto;
-            animation: rotate360 20s linear infinite 13s;
-        }
-
-        .flow-item {
-            position: absolute;
-            width: clamp(70px, 18vw, 140px);
-            text-align: center;
-            opacity: 0;
-        }
-
-        .flow-item:nth-child(1) {
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            animation: fadeIn 0.5s ease-out 13s forwards;
-        }
-
-        .flow-item:nth-child(2) {
-            top: 50%;
-            right: 0;
-            transform: translateY(-50%);
-            animation: fadeIn 0.5s ease-out 13.3s forwards;
-        }
-
-        .flow-item:nth-child(3) {
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            animation: fadeIn 0.5s ease-out 13.6s forwards;
-        }
-
-        .flow-item:nth-child(4) {
-            top: 50%;
-            left: 0;
-            transform: translateY(-50%);
-            animation: fadeIn 0.5s ease-out 13.9s forwards;
-        }
-
-        .flow-emoji {
-            font-size: clamp(32px, 8vw, 64px);
-            margin-bottom: clamp(6px, 1.5vh, 12px);
-        }
-
-        .flow-text {
-            font-size: clamp(11px, 2.8vw, 22px);
-            font-weight: 600;
-            line-height: 1.3;
-        }
-
-        .village-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            animation: pulse 2s infinite 14s;
-        }
-
-        .village-center-icon {
-            font-size: clamp(60px, 15vw, 120px);
-            margin-bottom: clamp(8px, 1.5vh, 15px);
-        }
-
-        .village-center-text {
-            font-family: 'Unbounded', sans-serif;
-            font-size: clamp(18px, 4.5vw, 36px);
-            font-weight: 800;
-            color: #FFB800;
-        }
-
-        .village-message {
-            font-size: clamp(18px, 4.5vw, 38px);
-            margin-top: clamp(35px, 7vh, 70px);
-            color: #00FF88;
-            font-weight: 700;
-            animation: slideUp 0.6s ease-out 14.5s backwards;
-        }
-
-        /* SCENE 5: VS GOOGLE/UBER - Mobile stack */
-        .scene-5 {
-            animation-delay: 16s;
-            background: linear-gradient(135deg, #1A1A1A, #0A0A0A);
-            padding: clamp(40px, 8vh, 120px) clamp(20px, 4vw, 70px);
-        }
-
-        .vs-header {
-            text-align: center;
-            margin-bottom: clamp(30px, 6vh, 60px);
-            animation: slideUp 0.6s ease-out 16.5s backwards;
-        }
-
-        .vs-title {
-            font-family: 'Unbounded', sans-serif;
-            font-size: clamp(32px, 8vw, 56px);
-            font-weight: 800;
-        }
-
-        .comparison-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: clamp(20px, 4vh, 40px);
-            max-width: 100%;
-            margin: 0 auto;
-            animation: slideUp 0.6s ease-out 17s backwards;
-        }
-
-        @media (min-width: 768px) {
-            .comparison-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .comparison-side {
-            padding: clamp(25px, 5vw, 45px) clamp(20px, 4vw, 35px);
-            border-radius: clamp(15px, 3vw, 25px);
-        }
-
-        .comparison-side.them {
-            background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(255, 51, 102, 0.1));
-            border: 2px solid rgba(255, 107, 53, 0.4);
-        }
-
-        .comparison-side.us {
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(255, 184, 0, 0.1));
-            border: 2px solid rgba(0, 255, 136, 0.4);
-        }
-
-        .comparison-label {
-            font-family: 'Unbounded', sans-serif;
-            font-size: clamp(24px, 6vw, 42px);
-            font-weight: 800;
-            margin-bottom: clamp(20px, 4vh, 35px);
-            text-align: center;
-        }
-
-        .comparison-list {
-            list-style: none;
-        }
-
-        .comparison-list li {
-            font-size: clamp(14px, 3.5vw, 26px);
-            padding: clamp(8px, 1.5vh, 15px) 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .comparison-list.them li::before {
-            content: '✗ ';
-            color: #FF6B35;
-            font-weight: bold;
-            margin-right: clamp(5px, 1vw, 10px);
-        }
-
-        .comparison-list.us li::before {
-            content: '✓ ';
-            color: #00FF88;
-            font-weight: bold;
-            margin-right: clamp(5px, 1vw, 10px);
-        }
-
-        /* SCENE 6: LA SOUVERAINETÉ */
-        .scene-6 {
-            animation-delay: 20s;
-            background: 
-                radial-gradient(circle at 50% 50%, rgba(255, 184, 0, 0.25) 0%, transparent 60%),
-                #0A0A0A;
-        }
-
-        .sovereignty-container {
-            text-align: center;
-            max-width: 100%;
-        }
-
-        .sovereignty-icon {
-            font-size: clamp(80px, 20vw, 150px);
-            margin-bottom: clamp(25px, 5vh, 50px);
-            animation: pulse 2s infinite 20.5s;
-        }
-
-        .sovereignty-title {
-            font-family: 'Unbounded', sans-serif;
-            font-size: clamp(28px, 7vw, 56px);
-            font-weight: 800;
-            margin-bottom: clamp(20px, 4vh, 40px);
-            line-height: 1.4;
-            animation: slideUp 0.6s ease-out 20.5s backwards;
-        }
-
-        .sovereignty-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: clamp(15px, 3vw, 30px);
-            margin-top: clamp(30px, 6vh, 60px);
-            animation: slideUp 0.6s ease-out 21s backwards;
-        }
-
-        .stat-box {
-            background: rgba(255, 184, 0, 0.1);
-            padding: clamp(20px, 4vw, 35px) clamp(15px, 3vw, 25px);
-            border-radius: clamp(12px, 3vw, 20px);
-            border: 2px solid rgba(255, 184, 0, 0.3);
-        }
-
-        .stat-number {
-            font-family: 'Unbounded', sans-serif;
-            font-size: clamp(28px, 7vw, 58px);
-            color: #FFB800;
-            font-weight: 800;
-            margin-bottom: clamp(8px, 1.5vh, 15px);
-        }
-
-        .stat-label {
-            font-size: clamp(12px, 3vw, 24px);
-            color: #A8A8A8;
-        }
-
-        /* SCENE 7: CTA FINAL */
-        .scene-7 {
-            animation-delay: 24s;
-            background: 
-                radial-gradient(circle at 50% 40%, rgba(255, 184, 0, 0.2) 0%, transparent 60%),
-                radial-gradient(circle at 50% 70%, rgba(0, 255, 136, 0.15) 0%, transparent 50%),
-                #0A0A0A;
-        }
-
-        .cta-header {
-            text-align: center;
-            margin-bottom: clamp(35px, 7vh, 70px);
-            animation: slideUp 0.6s ease-out 24.5s backwards;
-        }
-
-        .final-phrase {
-            font-family: 'Unbounded', sans-serif;
-            font-size: clamp(36px, 9vw, 76px);
-            font-weight: 800;
-            background: linear-gradient(135deg, #FFB800, #00FF88);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: clamp(18px, 3.5vh, 35px);
-            line-height: 1.3;
-        }
-
-        .final-subtext {
-            font-size: clamp(20px, 5vw, 42px);
-            color: #A8A8A8;
-            line-height: 1.6;
-        }
-
-        .cta-actions {
-            text-align: center;
-            margin-top: clamp(30px, 6vh, 60px);
-            animation: slideUp 0.6s ease-out 25s backwards;
-        }
-
-        .cta-button {
-            display: inline-block;
-            padding: clamp(18px, 4vw, 35px) clamp(35px, 8vw, 75px);
-            background: linear-gradient(135deg, #FFB800, #D49700);
-            color: #0A0A0A;
-            font-family: 'Unbounded', sans-serif;
-            font-size: clamp(18px, 4.5vw, 38px);
-            font-weight: 700;
-            border-radius: clamp(35px, 8vw, 70px);
-            border: none;
-            cursor: pointer;
-            animation: pulse 1.5s infinite 25.5s;
-            margin-bottom: clamp(20px, 4vh, 40px);
-            touch-action: manipulation;
-        }
-
-        .cta-button:active {
-            transform: scale(0.95);
-        }
-
-        .cta-footer {
-            text-align: center;
-            animation: fadeIn 1s ease-out 26s backwards;
-        }
-
-        .urgency-text {
-            font-size: clamp(16px, 4vw, 34px);
-            color: #FFB800;
-            font-weight: 700;
-            margin-bottom: clamp(12px, 2.5vh, 25px);
-        }
-
-        .contact-info {
-            font-size: clamp(14px, 3.5vw, 30px);
-            color: #A8A8A8;
-            line-height: 1.7;
-        }
-
-        .contact-highlight {
-            color: #FFB800;
-            font-weight: 600;
-        }
-
-        /* WATERMARK */
-        .watermark {
-            position: absolute;
-            bottom: clamp(15px, 3vh, 30px);
-            right: clamp(15px, 3vw, 30px);
-            font-family: 'Unbounded', sans-serif;
-            font-size: clamp(12px, 3vw, 22px);
-            color: rgba(255, 184, 0, 0.2);
-            z-index: 1000;
-            pointer-events: none;
-        }
-
-        /* SOUND TOGGLE */
-        .sound-toggle {
-            position: fixed;
-            top: clamp(15px, 3vh, 30px);
-            right: clamp(15px, 3vw, 30px);
-            width: clamp(45px, 10vw, 60px);
-            height: clamp(45px, 10vw, 60px);
-            background: rgba(255, 184, 0, 0.2);
-            border: 2px solid rgba(255, 184, 0, 0.5);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: clamp(22px, 5vw, 30px);
-            cursor: pointer;
-            z-index: 9999;
-            transition: all 0.3s;
-            touch-action: manipulation;
-        }
-
-        .sound-toggle:active {
-            background: rgba(255, 184, 0, 0.4);
-            transform: scale(0.9);
-        }
-
-        /* ANIMATIONS */
-        @keyframes fadeInOut {
-            0% { opacity: 0; }
-            5% { opacity: 1; }
-            95% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes zoomIn {
-            from {
-                opacity: 0;
-                transform: scale(0.5);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        @keyframes popIn {
-            from {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        @keyframes rotate360 {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* LANDSCAPE MOBILE OPTIMIZATION */
-        @media (max-height: 500px) and (orientation: landscape) {
-            .scene {
-                padding: 20px 30px;
-            }
-            .everything-grid,
-            .sovereignty-stats {
-                gap: 8px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>VAS CHEZ DIGIY · Le grand village digital africain</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --gold:#FFB800;--green:#00FF88;--red:#FF6B35;
+  --dark:#0A0A0A;--dark2:#141414;--dim:#9A9A9A;
+}
+html,body{width:100vw;height:100vh;overflow:hidden;background:var(--dark)}
+body{font-family:'Sora',sans-serif;color:#fff;-webkit-font-smoothing:antialiased}
+
+#bgCanvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+/* ── PROGRESS BAR ── */
+.prog-bar{position:fixed;bottom:0;left:0;width:100%;height:3px;background:rgba(255,184,0,.15);z-index:9999}
+.prog-fill{height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--green));transition:width .08s linear}
+.prog-dots{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:9999}
+.dot{width:5px;height:5px;border-radius:50%;background:rgba(255,184,0,.25);transition:all .3s}
+.dot.on{background:var(--gold);transform:scale(1.5)}
+
+/* ── BACK + SOUND ── */
+.back-btn{
+  position:fixed;top:clamp(14px,3vh,26px);left:clamp(14px,3vw,26px);
+  z-index:9999;display:flex;align-items:center;gap:7px;
+  padding:10px 16px;border-radius:999px;text-decoration:none;
+  font-family:'Sora',sans-serif;font-size:clamp(11px,2.8vw,13px);font-weight:700;color:#fff;
+  background:rgba(255,184,0,.1);border:1.5px solid rgba(255,184,0,.35);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  transition:all .2s;min-height:42px
+}
+.back-btn:hover{background:rgba(255,184,0,.2);border-color:rgba(255,184,0,.65)}
+.snd-btn{
+  position:fixed;top:clamp(14px,3vh,26px);right:clamp(14px,3vw,26px);
+  width:clamp(42px,10vw,54px);height:clamp(42px,10vw,54px);
+  background:rgba(255,184,0,.12);border:1.5px solid rgba(255,184,0,.35);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(18px,4.5vw,24px);cursor:pointer;z-index:9999;transition:all .2s
+}
+
+/* ── FLASH OVERLAY ── */
+#flash{
+  position:fixed;inset:0;
+  background:radial-gradient(circle,rgba(255,220,100,.8) 0%,rgba(255,184,0,.3) 100%);
+  opacity:0;z-index:8888;pointer-events:none
+}
+
+/* ── BEAT GLOW ── */
+.beat-ring{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:60vmax;height:60vmax;border-radius:50%;
+  border:1px solid rgba(255,184,0,.0);pointer-events:none;z-index:2
+}
+
+/* ── SCENE BASE ── */
+.scene{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;
+  padding:clamp(50px,9vh,110px) clamp(18px,5vw,65px) clamp(28px,5vh,55px);
+  opacity:0;z-index:10;will-change:opacity,transform
+}
+
+/* ======== SCENE ANIMATIONS ======== */
+@keyframes sceneIn{
+  0%{opacity:0;transform:scale(1.03)}
+  8%{opacity:1;transform:scale(1)}
+  88%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(.97)}
+}
+.s1{animation:sceneIn 4s ease-in-out 0s both;background:linear-gradient(155deg,#1A1A1A,#0A0A0A)}
+.s2{animation:sceneIn 4s ease-in-out 4s both;background:radial-gradient(ellipse at 50% 50%,rgba(255,184,0,.22) 0%,transparent 65%),#0A0A0A}
+.s3{animation:sceneIn 4s ease-in-out 8s both;background:linear-gradient(145deg,#0A0A0A,#151515);justify-content:flex-start;padding-top:clamp(44px,8vh,86px)}
+.s4{animation:sceneIn 4s ease-in-out 12s both;background:radial-gradient(ellipse at 50% 55%,rgba(0,255,136,.15) 0%,transparent 65%),#0A0A0A}
+.s5{animation:sceneIn 4s ease-in-out 16s both;background:linear-gradient(145deg,#151515,#0A0A0A);justify-content:flex-start;padding-top:clamp(48px,8.5vh,92px)}
+.s6{animation:sceneIn 4s ease-in-out 20s both;background:radial-gradient(ellipse at 50% 45%,rgba(255,184,0,.18) 0%,transparent 60%),#0A0A0A}
+.s7{animation:sceneIn 4s ease-in-out 24s both;background:radial-gradient(ellipse at 50% 35%,rgba(255,184,0,.16) 0%,transparent 55%),radial-gradient(ellipse at 50% 72%,rgba(0,255,136,.1) 0%,transparent 50%),#0A0A0A}
+
+/* ======== SCENE 1 : QUESTIONS ======== */
+.q-wrap{text-align:center;width:100%}
+.q-item{margin:clamp(14px,3vh,26px) 0;opacity:0}
+.q-item:nth-child(1){animation:slideUp .55s ease-out .35s forwards}
+.q-item:nth-child(2){animation:slideUp .55s ease-out 1.05s forwards}
+.q-item:nth-child(3){animation:slideUp .55s ease-out 1.75s forwards}
+.q-emoji{font-size:clamp(34px,8.5vw,60px);margin-bottom:6px}
+.q-text{font-size:clamp(17px,4.2vw,32px);line-height:1.4;color:#D0D0D0}
+.q-old{font-size:clamp(13px,3.2vw,24px);color:var(--red);margin-top:4px;text-decoration:line-through;opacity:.5}
+
+/* ======== SCENE 2 : RÉVÉLATION ======== */
+.rev-wrap{text-align:center}
+.rev-icon{font-size:clamp(65px,16vw,130px);opacity:0;animation:zoomSpin .9s cubic-bezier(.175,.885,.32,1.275) 4.35s forwards}
+.rev-phrase{
+  font-family:'Unbounded',sans-serif;font-size:clamp(32px,8.5vw,72px);font-weight:800;
+  line-height:1.25;margin-top:clamp(18px,3.5vh,36px);
+  opacity:0;animation:glitch 1.3s ease-out 5s forwards;position:relative
+}
+.rev-phrase span{background:linear-gradient(125deg,var(--gold),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.rev-sub{font-size:clamp(17px,4.2vw,34px);color:var(--dim);margin-top:clamp(14px,3vh,28px);opacity:0;animation:slideUp .7s ease-out 5.8s forwards;line-height:1.5}
+
+/* ======== SCENE 3 : TOUT EST LÀ ======== */
+.s3-head{text-align:center;margin-bottom:clamp(18px,3.5vh,36px);opacity:0;animation:slideUp .45s ease-out 8.35s forwards;width:100%}
+.s3-title{font-family:'Unbounded',sans-serif;font-size:clamp(26px,6.5vw,50px);font-weight:800}
+.s3-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(9px,2vw,18px);width:100%;max-width:560px}
+.mod-card{
+  background:linear-gradient(135deg,rgba(255,184,0,.07),rgba(0,255,136,.03));
+  border:1.5px solid rgba(255,184,0,.22);border-radius:clamp(11px,2.5vw,17px);
+  padding:clamp(13px,2.8vw,24px) clamp(10px,2.2vw,18px);text-align:center;opacity:0;
+  transition:border-color .25s,transform .2s
+}
+.mod-card:active{transform:scale(.97)}
+.mc1{animation:popIn .32s ease-out 8.75s forwards}
+.mc2{animation:popIn .32s ease-out 8.95s forwards}
+.mc3{animation:popIn .32s ease-out 9.15s forwards}
+.mc4{animation:popIn .32s ease-out 9.35s forwards}
+.mc5{animation:popIn .32s ease-out 9.55s forwards}
+.mc6{animation:popIn .32s ease-out 9.75s forwards}
+.mc-em{font-size:clamp(24px,6vw,46px);margin-bottom:5px}
+.mc-label{font-size:clamp(12px,3vw,22px);font-weight:600;margin-bottom:3px}
+.mc-mod{font-size:clamp(10px,2.6vw,18px);color:var(--gold);font-weight:700;letter-spacing:.02em}
+
+/* ======== SCENE 4 : VILLAGE ======== */
+.v-wrap{text-align:center;width:100%}
+.v-title{font-family:'Unbounded',sans-serif;font-size:clamp(20px,5vw,44px);font-weight:800;margin-bottom:clamp(18px,3.5vh,46px);opacity:0;animation:slideUp .5s ease-out 12.4s forwards}
+.v-ring-wrap{position:relative;width:clamp(260px,68vw,500px);height:clamp(260px,68vw,500px);margin:0 auto}
+
+/* Decorative rotating ring (NOT items) */
+.v-ring{position:absolute;top:16%;left:16%;width:68%;height:68%;border-radius:50%;border:1.5px dashed rgba(0,255,136,.3);animation:spin 12s linear 13s infinite}
+.v-ring2{position:absolute;top:22%;left:22%;width:56%;height:56%;border-radius:50%;border:1px solid rgba(255,184,0,.15);animation:spinR 18s linear 13s infinite}
+
+.v-item{position:absolute;text-align:center;width:clamp(68px,17vw,130px);opacity:0}
+.vi1{top:0;left:50%;transform:translateX(-50%);animation:fadeIn .4s ease-out 13s forwards}
+.vi2{top:50%;right:0;transform:translateY(-50%);animation:fadeIn .4s ease-out 13.3s forwards}
+.vi3{bottom:0;left:50%;transform:translateX(-50%);animation:fadeIn .4s ease-out 13.6s forwards}
+.vi4{top:50%;left:0;transform:translateY(-50%);animation:fadeIn .4s ease-out 13.9s forwards}
+
+.v-em{font-size:clamp(26px,6.5vw,52px);margin-bottom:4px}
+.v-lbl{font-size:clamp(9px,2.3vw,18px);font-weight:600;line-height:1.3}
+
+.v-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.v-center-ic{font-size:clamp(44px,11vw,88px)}
+.v-center-tx{font-family:'Unbounded',sans-serif;font-size:clamp(14px,3.5vw,28px);font-weight:800;color:var(--gold)}
+
+.v-msg{font-size:clamp(14px,3.5vw,30px);margin-top:clamp(22px,4.5vh,48px);color:var(--green);font-weight:700;opacity:0;animation:slideUp .5s ease-out 14.5s forwards}
+
+/* ======== SCENE 5 : VS ======== */
+.vs-head{text-align:center;margin-bottom:clamp(18px,3.5vh,36px);opacity:0;animation:slideUp .5s ease-out 16.4s forwards;width:100%}
+.vs-title{font-family:'Unbounded',sans-serif;font-size:clamp(24px,6vw,48px);font-weight:800}
+.vs-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,2.5vw,22px);
+  width:100%;max-width:680px;opacity:0;animation:slideUp .5s ease-out 16.85s forwards
+}
+.vs-side{padding:clamp(14px,3.5vw,30px) clamp(12px,2.8vw,22px);border-radius:clamp(11px,2.5vw,18px)}
+.vs-them{background:rgba(255,107,53,.1);border:1.5px solid rgba(255,107,53,.3)}
+.vs-us{background:rgba(0,255,136,.08);border:1.5px solid rgba(0,255,136,.3)}
+.vs-label{font-family:'Unbounded',sans-serif;font-size:clamp(13px,3.2vw,22px);font-weight:800;margin-bottom:clamp(10px,2.2vh,20px);text-align:center}
+.vs-ul{list-style:none}
+.vs-ul li{font-size:clamp(11px,2.7vw,19px);padding:clamp(4px,1vh,8px) 0;border-bottom:1px solid rgba(255,255,255,.07);line-height:1.3}
+.vs-ul.them li::before{content:'✗ ';color:var(--red);font-weight:700}
+.vs-ul.us li::before{content:'✓ ';color:var(--green);font-weight:700}
+
+/* ======== SCENE 6 : SOUVERAINETÉ ======== */
+.sov-wrap{text-align:center;width:100%}
+.sov-ic{font-size:clamp(65px,16vw,120px);opacity:0;animation:zoomSpin .8s cubic-bezier(.175,.885,.32,1.275) 20.4s forwards}
+.sov-title{font-family:'Unbounded',sans-serif;font-size:clamp(22px,5.5vw,46px);font-weight:800;margin:clamp(12px,2.5vh,24px) 0;line-height:1.4;opacity:0;animation:slideUp .5s ease-out 20.8s forwards}
+.sov-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(9px,2.2vw,20px);
+  margin-top:clamp(16px,3.5vh,32px);opacity:0;animation:slideUp .5s ease-out 21.2s forwards
+}
+.stat-box{background:rgba(255,184,0,.07);padding:clamp(14px,3vw,26px) clamp(8px,2vw,18px);border-radius:clamp(10px,2.2vw,16px);border:1.5px solid rgba(255,184,0,.22)}
+.stat-n{font-family:'Unbounded',sans-serif;font-size:clamp(24px,6vw,50px);color:var(--gold);font-weight:800;margin-bottom:4px}
+.stat-l{font-size:clamp(10px,2.5vw,18px);color:var(--dim)}
+
+/* ======== SCENE 7 : CTA ======== */
+.cta-head{text-align:center;margin-bottom:clamp(20px,4.5vh,46px);opacity:0;animation:slideUp .5s ease-out 24.4s forwards}
+.final-ph{font-family:'Unbounded',sans-serif;font-size:clamp(32px,8vw,68px);font-weight:800;line-height:1.25;margin-bottom:clamp(12px,2.5vh,24px)}
+.final-ph span{background:linear-gradient(125deg,var(--gold),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.final-sub{font-size:clamp(15px,3.8vw,32px);color:var(--dim);line-height:1.65}
+.cta-acts{text-align:center;opacity:0;animation:slideUp .5s ease-out 24.9s forwards}
+.cta-btn{
+  display:inline-block;padding:clamp(15px,3.2vw,28px) clamp(28px,6.5vw,60px);
+  background:linear-gradient(135deg,var(--gold),#D49700);color:#0A0A0A;
+  font-family:'Unbounded',sans-serif;font-size:clamp(14px,3.5vw,30px);font-weight:700;
+  border-radius:clamp(28px,7vw,56px);border:none;cursor:pointer;
+  animation:beatPulse 1.1s ease-in-out infinite 25.4s;
+  margin-bottom:clamp(14px,3vh,28px);touch-action:manipulation
+}
+.cta-btn:active{transform:scale(.95)}
+.cta-foot{text-align:center;opacity:0;animation:fadeIn .8s ease-out 25.8s forwards}
+.urg{font-size:clamp(12px,3.2vw,26px);color:var(--gold);font-weight:700;margin-bottom:clamp(8px,1.8vh,16px)}
+.cinfo{font-size:clamp(12px,3vw,24px);color:var(--dim);line-height:1.8}
+.chi{color:var(--gold);font-weight:600}
+
+.wm{position:absolute;bottom:clamp(18px,3.5vh,30px);right:clamp(14px,3vw,28px);font-family:'Unbounded',sans-serif;font-size:clamp(10px,2.6vw,18px);color:rgba(255,184,0,.16);z-index:100;pointer-events:none}
+
+/* ======== KEYFRAMES ======== */
+@keyframes slideUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
+@keyframes zoomSpin{from{opacity:0;transform:scale(.35) rotate(-15deg)}to{opacity:1;transform:scale(1) rotate(0deg)}}
+@keyframes glitch{
+  0%{opacity:0;transform:translateX(-6px) skewX(-3deg);filter:blur(5px)}
+  18%{opacity:.8;transform:translateX(4px) skewX(2deg);filter:blur(0)}
+  34%{opacity:.9;transform:translateX(-3px) skewX(-1deg)}
+  50%{opacity:1;transform:translateX(2px) skewX(.5deg)}
+  70%{transform:translateX(0) skewX(0)}
+  100%{opacity:1;transform:translateX(0) skewX(0)}
+}
+@keyframes beatPulse{
+  0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(255,184,0,.5)}
+  50%{transform:scale(1.045);box-shadow:0 0 0 14px rgba(255,184,0,0)}
+}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes spinR{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
+@keyframes flashIn{0%{opacity:.7}100%{opacity:0}}
+@keyframes ringPulse{0%{border-color:rgba(255,184,0,.0);transform:translate(-50%,-50%) scale(.5)}60%{border-color:rgba(255,184,0,.35)}100%{border-color:rgba(255,184,0,.0);transform:translate(-50%,-50%) scale(1.6)}}
+
+@media(max-height:500px) and (orientation:landscape){
+  .scene{padding:16px 22px}
+  .s3-grid,.sov-stats{gap:7px}
+  .vs-grid{gap:8px}
+}
+</style>
 </head>
 <body>
-    <div class="video-container">
-        
-        <nav class="digiy-floating-routes" aria-label="Navigation DIGIYLYFE">
-            <a class="site-back-float" href="https://digiylyfe.com/" target="_blank" rel="noopener">🌍 <span class="route-label">Site</span></a>
-            <a class="digiy-route-btn hub" href="https://digiy-hub.digiylyfe.com/" target="_blank" rel="noopener">🧭 <span class="route-label">HUB</span></a>
-            <a class="digiy-route-btn tarifs" href="https://tarifs.digiylyfe.com/" target="_blank" rel="noopener">📦 <span class="route-label">Tarifs</span></a>
-        </nav>
 
-        <!-- SOUND TOGGLE -->
-        <div class="sound-toggle" id="soundToggle">🔊</div>
-        
-        <!-- SCENE 1: LES QUESTIONS QUOTIDIENNES -->
-        <div class="scene scene-1">
-            <div class="questions-container">
-                <div class="question-item">
-                    <div class="question-emoji">🚗</div>
-                    <div class="question-text">
-                        "Je cherche une voiture..."
-                    </div>
-                    <div class="old-solution">Uber ? 25% de commission</div>
-                </div>
-                <div class="question-item">
-                    <div class="question-emoji">🍽️</div>
-                    <div class="question-text">
-                        "Je veux sortir au resto..."
-                    </div>
-                    <div class="old-solution">Google ? Impersonnel</div>
-                </div>
-                <div class="question-item">
-                    <div class="question-emoji">💇</div>
-                    <div class="question-text">
-                        "Besoin d'une belle coupe..."
-                    </div>
-                    <div class="old-solution">Où chercher ?</div>
-                </div>
-            </div>
-        </div>
+<canvas id="bgCanvas"></canvas>
 
-        <!-- SCENE 2: LA RÉVÉLATION -->
-        <div class="scene scene-2">
-            <div class="revelation-container">
-                <div class="revelation-icon">💡</div>
-                <div class="revelation-phrase">
-                    VAS CHEZ<br/>DIGIY
-                </div>
-                <div class="revelation-subtitle">
-                    Une seule réponse.<br/>Pour tout.
-                </div>
-            </div>
-        </div>
+<a class="back-btn" href="https://digiylyfe.com/" target="_blank" rel="noopener">← Retour</a>
+<div class="snd-btn" id="sndBtn">🔊</div>
+<div class="prog-bar"><div class="prog-fill" id="pFill"></div></div>
+<div class="prog-dots" id="pDots"></div>
+<div id="flash" style="position:fixed;inset:0;pointer-events:none;z-index:8888;opacity:0;background:radial-gradient(circle,rgba(255,220,80,.7),rgba(255,184,0,.2))"></div>
+<div class="beat-ring" id="beatRing"></div>
 
-        <!-- SCENE 3: TOUT EST LÀ -->
-        <div class="scene scene-3">
-            <div class="everything-header">
-                <div class="everything-title">Tout est là !</div>
-            </div>
-            
-            <div class="everything-grid">
-                <div class="need-card">
-                    <div class="need-emoji">🚗</div>
-                    <div class="need-label">Voiture ?</div>
-                    <div class="need-module">DIGIY DRIVER</div>
-                </div>
-                <div class="need-card">
-                    <div class="need-emoji">🍽️</div>
-                    <div class="need-label">Resto ?</div>
-                    <div class="need-module">DIGIY RESTO</div>
-                </div>
-                <div class="need-card">
-                    <div class="need-emoji">💇</div>
-                    <div class="need-label">Coiffeur ?</div>
-                    <div class="need-module">DIGIY BEAUTY</div>
-                </div>
-                <div class="need-card">
-                    <div class="need-emoji">🏠</div>
-                    <div class="need-label">Logement ?</div>
-                    <div class="need-module">DIGIY LOC</div>
-                </div>
-                <div class="need-card">
-                    <div class="need-emoji">🛒</div>
-                    <div class="need-label">Shopping ?</div>
-                    <div class="need-module">DIGIY MARKET</div>
-                </div>
-                <div class="need-card">
-                    <div class="need-emoji">💼</div>
-                    <div class="need-label">Confrères ?</div>
-                    <div class="need-module">DIGIY JOBS</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SCENE 4: LE GRAND VILLAGE -->
-        <div class="scene scene-4">
-            <div class="village-container">
-                <div class="village-title">Le grand village circulaire</div>
-                
-                <div class="circular-flow">
-                    <div class="flow-item">
-                        <div class="flow-emoji">🧑‍💼</div>
-                        <div class="flow-text">Pro africain<br/>propose</div>
-                    </div>
-                    <div class="flow-item">
-                        <div class="flow-emoji">🤝</div>
-                        <div class="flow-text">Client africain<br/>achète</div>
-                    </div>
-                    <div class="flow-item">
-                        <div class="flow-emoji">💰</div>
-                        <div class="flow-text">Argent reste<br/>en Afrique</div>
-                    </div>
-                    <div class="flow-item">
-                        <div class="flow-emoji">♻️</div>
-                        <div class="flow-text">Économie<br/>circulaire</div>
-                    </div>
-                    
-                    <div class="village-center">
-                        <div class="village-center-icon">🌍</div>
-                        <div class="village-center-text">DIGIY</div>
-                    </div>
-                </div>
-                
-                <div class="village-message">
-                    L'argent tourne entre nous !
-                </div>
-            </div>
-        </div>
-
-        <!-- SCENE 5: VS GOOGLE/UBER -->
-        <div class="scene scene-5">
-            <div class="vs-header">
-                <div class="vs-title">La différence</div>
-            </div>
-            
-            <div class="comparison-grid">
-                <div class="comparison-side them">
-                    <div class="comparison-label">GOOGLE/UBER</div>
-                    <ul class="comparison-list them">
-                        <li>Impersonnel</li>
-                        <li>Occidental</li>
-                        <li>Exploite</li>
-                        <li>$ part aux USA</li>
-                        <li>Deuxième main</li>
-                        <li>20-30% volés</li>
-                    </ul>
-                </div>
-                
-                <div class="comparison-side us">
-                    <div class="comparison-label">DIGIY</div>
-                    <ul class="comparison-list us">
-                        <li>Personnel</li>
-                        <li>Africain</li>
-                        <li>Libère</li>
-                        <li>$ reste ici</li>
-                        <li>Première main</li>
-                        <li>0% commission</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- SCENE 6: LA SOUVERAINETÉ -->
-        <div class="scene scene-6">
-            <div class="sovereignty-container">
-                <div class="sovereignty-icon">🦅</div>
-                <div class="sovereignty-title">
-                    La souveraineté<br/>digitale africaine
-                </div>
-                
-                <div class="sovereignty-stats">
-                    <div class="stat-box">
-                        <div class="stat-number">0%</div>
-                        <div class="stat-label">Commission</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number">11</div>
-                        <div class="stat-label">Modules</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-number">100%</div>
-                        <div class="stat-label">Pour toi</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SCENE 7: CTA FINAL -->
-        <div class="scene scene-7">
-            <div class="cta-header">
-                <div class="final-phrase">
-                    VAS CHEZ<br/>DIGIY
-                </div>
-                <div class="final-subtext">
-                    Notre village.<br/>
-                    Notre terroir.<br/>
-                    Notre souveraineté.
-                </div>
-            </div>
-            
-            <div class="cta-actions">
-                <button class="cta-button">REJOINS LE VILLAGE</button>
-            </div>
-            
-            <div class="cta-footer">
-                <div class="urgency-text">
-                    🔥 87 places pionniers • 29,900 F/mois À VIE
-                </div>
-                <div class="contact-info">
-                    <span class="contact-highlight">📱 +221 77 134 28 89</span><br/>
-                    <span class="contact-highlight">digiylyfe.com</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="watermark">∞ DIGIY</div>
-
+<!-- SCENE 1 : QUESTIONS -->
+<div class="scene s1">
+  <div class="q-wrap">
+    <div class="q-item">
+      <div class="q-emoji">🚗</div>
+      <div class="q-text">"Je cherche une voiture..."</div>
+      <div class="q-old">Uber ? 25% de commission</div>
     </div>
+    <div class="q-item">
+      <div class="q-emoji">🍽️</div>
+      <div class="q-text">"Je veux sortir au resto..."</div>
+      <div class="q-old">Google ? Impersonnel</div>
+    </div>
+    <div class="q-item">
+      <div class="q-emoji">💇</div>
+      <div class="q-text">"Besoin d'une belle coupe..."</div>
+      <div class="q-old">Où chercher ?</div>
+    </div>
+  </div>
+</div>
 
-    <script>
-        // WEB AUDIO API
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        let soundEnabled = true;
+<!-- SCENE 2 : RÉVÉLATION -->
+<div class="scene s2">
+  <div class="rev-wrap">
+    <div class="rev-icon">💡</div>
+    <div class="rev-phrase"><span>VAS CHEZ<br>DIGIY</span></div>
+    <div class="rev-sub">Une seule réponse.<br>Pour tout.</div>
+  </div>
+</div>
 
-        function playSound(frequency, duration, type = 'sine', volume = 0.2) {
-            if (!soundEnabled) return;
-            
-            try {
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                
-                oscillator.frequency.value = frequency;
-                oscillator.type = type;
-                
-                gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-                
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + duration);
-            } catch (e) {
-                console.log('Audio not available');
-            }
-        }
+<!-- SCENE 3 : TOUT EST LÀ -->
+<div class="scene s3">
+  <div class="s3-head"><div class="s3-title">Tout est là !</div></div>
+  <div class="s3-grid">
+    <div class="mod-card mc1"><div class="mc-em">🚗</div><div class="mc-label">Voiture ?</div><div class="mc-mod">DRIVER</div></div>
+    <div class="mod-card mc2"><div class="mc-em">🍽️</div><div class="mc-label">Resto ?</div><div class="mc-mod">EXPLORE</div></div>
+    <div class="mod-card mc3"><div class="mc-em">💇</div><div class="mc-label">Coiffeur ?</div><div class="mc-mod">BUILD</div></div>
+    <div class="mod-card mc4"><div class="mc-em">🏠</div><div class="mc-label">Logement ?</div><div class="mc-mod">LOC</div></div>
+    <div class="mod-card mc5"><div class="mc-em">🛒</div><div class="mc-label">Shopping ?</div><div class="mc-mod">MARKET</div></div>
+    <div class="mod-card mc6"><div class="mc-em">💼</div><div class="mc-label">Emploi ?</div><div class="mc-mod">JOBS</div></div>
+  </div>
+</div>
 
-        const soundSchedule = [
-            { time: 500, freq: 330, duration: 0.3, volume: 0.2 },
-            { time: 1200, freq: 330, duration: 0.3, volume: 0.2 },
-            { time: 1900, freq: 330, duration: 0.3, volume: 0.2 },
+<!-- SCENE 4 : VILLAGE CIRCULAIRE -->
+<div class="scene s4">
+  <div class="v-wrap">
+    <div class="v-title">Le grand village circulaire</div>
+    <div class="v-ring-wrap">
+      <div class="v-ring"></div>
+      <div class="v-ring2"></div>
+      <!-- 4 items positioned on parent, NOT inside rotating rings -->
+      <div class="v-item vi1"><div class="v-em">🧑‍💼</div><div class="v-lbl">Pro africain<br>propose</div></div>
+      <div class="v-item vi2"><div class="v-em">🤝</div><div class="v-lbl">Client achète<br>ici</div></div>
+      <div class="v-item vi3"><div class="v-em">💰</div><div class="v-lbl">Argent reste<br>en Afrique</div></div>
+      <div class="v-item vi4"><div class="v-em">♻️</div><div class="v-lbl">Économie<br>circulaire</div></div>
+      <div class="v-center">
+        <div class="v-center-ic">🌍</div>
+        <div class="v-center-tx">DIGIY</div>
+      </div>
+    </div>
+    <div class="v-msg">L'argent tourne entre nous !</div>
+  </div>
+</div>
 
-            { time: 4000, freq: 550, duration: 0.5, volume: 0.25 },
-            { time: 5000, freq: 880, duration: 0.7, volume: 0.3 },
+<!-- SCENE 5 : VS -->
+<div class="scene s5">
+  <div class="vs-head"><div class="vs-title">La différence</div></div>
+  <div class="vs-grid">
+    <div class="vs-side vs-them">
+      <div class="vs-label">UBER / GOOGLE</div>
+      <ul class="vs-ul them">
+        <li>Impersonnel</li>
+        <li>Occidental</li>
+        <li>Exploite les pros</li>
+        <li>$ part aux USA</li>
+        <li>20–30% volés</li>
+        <li>Deuxième main</li>
+      </ul>
+    </div>
+    <div class="vs-side vs-us">
+      <div class="vs-label">DIGIY</div>
+      <ul class="vs-ul us">
+        <li>Humain & direct</li>
+        <li>100% africain</li>
+        <li>Libère les pros</li>
+        <li>$ reste ici</li>
+        <li>0% commission</li>
+        <li>Première main</li>
+      </ul>
+    </div>
+  </div>
+</div>
 
-            { time: 9000, freq: 440, duration: 0.1, volume: 0.2 },
-            { time: 9200, freq: 440, duration: 0.1, volume: 0.2 },
-            { time: 9400, freq: 440, duration: 0.1, volume: 0.2 },
-            { time: 9600, freq: 440, duration: 0.1, volume: 0.2 },
-            { time: 9800, freq: 440, duration: 0.1, volume: 0.2 },
-            { time: 10000, freq: 440, duration: 0.1, volume: 0.2 },
+<!-- SCENE 6 : SOUVERAINETÉ -->
+<div class="scene s6">
+  <div class="sov-wrap">
+    <div class="sov-ic">🦅</div>
+    <div class="sov-title">La souveraineté<br>digitale africaine</div>
+    <div class="sov-stats">
+      <div class="stat-box"><div class="stat-n" id="sn0">0%</div><div class="stat-l">Commission</div></div>
+      <div class="stat-box"><div class="stat-n" id="sn1">10</div><div class="stat-l">Modules</div></div>
+      <div class="stat-box"><div class="stat-n" id="sn2">100%</div><div class="stat-l">Pour toi</div></div>
+    </div>
+  </div>
+</div>
 
-            { time: 12000, freq: 660, duration: 0.5, volume: 0.25 },
-            { time: 13000, freq: 550, duration: 0.3, volume: 0.2 },
-            { time: 14500, freq: 880, duration: 0.5, volume: 0.3 },
+<!-- SCENE 7 : CTA -->
+<div class="scene s7">
+  <div class="cta-head">
+    <div class="final-ph"><span>VAS CHEZ<br>DIGIY</span></div>
+    <div class="final-sub">Notre village.<br>Notre terroir.<br>Notre souveraineté.</div>
+  </div>
+  <div class="cta-acts">
+    <button class="cta-btn" onclick="window.open('https://digiylyfe.com','_blank')">REJOINS LE VILLAGE</button>
+  </div>
+  <div class="cta-foot">
+    <div class="urg">🔥 87 places pionniers · 29 900 F/mois À VIE</div>
+    <div class="cinfo">
+      <span class="chi">📱 +221 77 134 28 89</span><br>
+      <span class="chi">digiylyfe.com</span>
+    </div>
+  </div>
+</div>
 
-            { time: 16000, freq: 440, duration: 0.4, volume: 0.2 },
-            { time: 17000, freq: 660, duration: 0.5, volume: 0.25 },
+<div class="wm">∞ DIGIY</div>
 
-            { time: 20000, freq: 880, duration: 0.6, volume: 0.3 },
-            { time: 21000, freq: 1100, duration: 0.5, volume: 0.3 },
+<script>
+/* =====================================================
+   PARTICLE SYSTEM
+===================================================== */
+const cv = document.getElementById('bgCanvas');
+const cx = cv.getContext('2d');
+function rsz(){cv.width=innerWidth;cv.height=innerHeight}
+rsz();window.addEventListener('resize',rsz);
 
-            { time: 24000, freq: 880, duration: 0.5, volume: 0.3 },
-            { time: 25500, freq: 1100, duration: 0.4, volume: 0.3 },
-        ];
+const PARTICLES=[];
+class P{
+  reset(){
+    this.x=Math.random()*cv.width;
+    this.y=cv.height+10;
+    this.r=Math.random()*2+.4;
+    this.vy=Math.random()*.7+.25;
+    this.vx=(Math.random()-.5)*.35;
+    this.a=Math.random()*.45+.08;
+    this.c=Math.random()>.55?'#FFB800':'#00FF88';
+  }
+  constructor(){this.reset();this.y=Math.random()*cv.height}
+  tick(){
+    this.y-=this.vy;this.x+=this.vx;
+    if(this.y<-10)this.reset();
+  }
+  draw(){
+    cx.save();
+    cx.globalAlpha=this.a*(this.y/cv.height);
+    cx.fillStyle=this.c;
+    cx.shadowBlur=5;cx.shadowColor=this.c;
+    cx.beginPath();cx.arc(this.x,this.y,this.r,0,Math.PI*2);cx.fill();
+    cx.restore();
+  }
+}
+for(let i=0;i<70;i++)PARTICLES.push(new P());
+(function loop(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  PARTICLES.forEach(p=>{p.tick();p.draw()});
+  requestAnimationFrame(loop);
+})();
 
-        function startSoundtrack() {
-            soundSchedule.forEach(sound => {
-                setTimeout(() => {
-                    playSound(sound.freq, sound.duration, 'sine', sound.volume);
-                }, sound.time);
-            });
-        }
+/* =====================================================
+   PROGRESS + DOTS
+===================================================== */
+const TOTAL=28000,SCENES=7;
+const pFill=document.getElementById('pFill');
+const pDots=document.getElementById('pDots');
+for(let i=0;i<SCENES;i++){
+  const d=document.createElement('div');d.className='dot';d.id='d'+i;pDots.appendChild(d);
+}
+let T0=Date.now();
+(function tick(){
+  const e=Date.now()-T0;
+  pFill.style.width=Math.min(e/TOTAL*100,100)+'%';
+  const cur=Math.min(Math.floor(e/(TOTAL/SCENES)),SCENES-1);
+  for(let i=0;i<SCENES;i++){
+    const d=document.getElementById('d'+i);
+    if(d)d.className='dot'+(i===cur?' on':'');
+  }
+  if(e<TOTAL)requestAnimationFrame(tick);
+})();
 
-        const soundToggle = document.getElementById('soundToggle');
-        soundToggle.addEventListener('click', () => {
-            soundEnabled = !soundEnabled;
-            soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
-            
-            if (audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
-        });
+/* =====================================================
+   FLASH TRANSITIONS
+===================================================== */
+const flashEl=document.getElementById('flash');
+function flash(){
+  flashEl.style.animation='none';
+  void flashEl.offsetWidth;
+  flashEl.style.animation='flashIn .45s ease-out forwards';
+}
+[4000,8000,12000,16000,20000,24000].forEach(t=>setTimeout(flash,t));
 
-        document.addEventListener('click', () => {
-            if (audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
-        }, { once: true });
+/* =====================================================
+   BEAT RING VISUAL PULSE
+===================================================== */
+const beatRing=document.getElementById('beatRing');
+function ringPulse(){
+  beatRing.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.5);border-radius:50%;border:2px solid rgba(255,184,0,.0);pointer-events:none;z-index:2;width:80vmax;height:80vmax;animation:ringPulse .5s ease-out forwards';
+  setTimeout(()=>beatRing.removeAttribute('style'),500);
+}
 
-        startSoundtrack();
+/* =====================================================
+   AFROBEAT SYNTH ENGINE
+===================================================== */
+let AC=null,MG=null,sndOn=true,started=false;
 
-        setTimeout(() => {
-            location.reload();
-        }, 28000);
-    </script>
+function initAC(){
+  if(AC)return;
+  AC=new(window.AudioContext||window.webkitAudioContext)();
+  MG=AC.createGain();MG.gain.value=.75;MG.connect(AC.destination);
+}
+
+function kick(t){
+  if(!sndOn||!AC)return;
+  const o=AC.createOscillator(),g=AC.createGain();
+  o.connect(g);g.connect(MG);
+  o.type='sine';
+  o.frequency.setValueAtTime(185,t);
+  o.frequency.exponentialRampToValueAtTime(38,t+.32);
+  g.gain.setValueAtTime(1,t);g.gain.exponentialRampToValueAtTime(.001,t+.38);
+  o.start(t);o.stop(t+.4);
+  // schedule visual
+  const delay=(t-AC.currentTime)*1000;
+  if(delay>=0)setTimeout(ringPulse,delay);
+}
+
+function snare(t){
+  if(!sndOn||!AC)return;
+  const sz=AC.sampleRate*.14;
+  const buf=AC.createBuffer(1,sz,AC.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<sz;i++)d[i]=Math.random()*2-1;
+  const n=AC.createBufferSource();n.buffer=buf;
+  const f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=1100;f.Q.value=.6;
+  const g=AC.createGain();
+  n.connect(f);f.connect(g);g.connect(MG);
+  g.gain.setValueAtTime(.4,t);g.gain.exponentialRampToValueAtTime(.001,t+.14);
+  n.start(t);n.stop(t+.15);
+  const o=AC.createOscillator(),g2=AC.createGain();
+  o.connect(g2);g2.connect(MG);
+  o.type='triangle';o.frequency.setValueAtTime(215,t);o.frequency.exponentialRampToValueAtTime(75,t+.08);
+  g2.gain.setValueAtTime(.22,t);g2.gain.exponentialRampToValueAtTime(.001,t+.1);
+  o.start(t);o.stop(t+.1);
+}
+
+function hat(t,vol){
+  if(!sndOn||!AC)return;
+  const sz=AC.sampleRate*.038;
+  const buf=AC.createBuffer(1,sz,AC.sampleRate);
+  const d=buf.getChannelData(0);for(let i=0;i<sz;i++)d[i]=Math.random()*2-1;
+  const n=AC.createBufferSource();n.buffer=buf;
+  const f=AC.createBiquadFilter();f.type='highpass';f.frequency.value=7500;
+  const g=AC.createGain();n.connect(f);f.connect(g);g.connect(MG);
+  g.gain.setValueAtTime(vol||.16,t);g.gain.exponentialRampToValueAtTime(.001,t+.038);
+  n.start(t);n.stop(t+.04);
+}
+
+function bass(t,freq,dur){
+  if(!sndOn||!AC)return;
+  const o=AC.createOscillator(),f=AC.createBiquadFilter(),g=AC.createGain();
+  o.connect(f);f.connect(g);g.connect(MG);
+  f.type='lowpass';f.frequency.setValueAtTime(600,t);f.frequency.exponentialRampToValueAtTime(180,t+dur);
+  o.type='sawtooth';o.frequency.value=freq;
+  g.gain.setValueAtTime(.55,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o.start(t);o.stop(t+dur+.05);
+}
+
+function mel(t,freq,dur,vol){
+  if(!sndOn||!AC)return;
+  const o=AC.createOscillator(),g=AC.createGain();
+  o.connect(g);g.connect(MG);
+  o.type='triangle';o.frequency.value=freq;
+  g.gain.setValueAtTime(vol||.11,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o.start(t);o.stop(t+dur+.05);
+}
+
+function schedule(){
+  if(!AC)return;
+  const BPM=114,b=60/BPM; // ~0.526s per beat
+  // 16th note grid: b/2 per step
+  const S=b/2;
+  const t0=AC.currentTime+.08;
+  const totalS=Math.ceil(28/S)+4;
+
+  // Pentatonic D major: D4 F#4 A4 B4 D5 F#5
+  const P5=[293.66,369.99,440,493.88,587.33,739.99];
+  // Bass octave lower: D2 F#2 A2 B2
+  const BN=[73.4,92.5,110,123.47];
+
+  // 16-step pattern
+  const Kp=[1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0]; // kick
+  const Sp=[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0]; // snare
+  const Hp=[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]; // hihat
+  const Ho=[0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0]; // open hat
+
+  // Bass: step → [note_idx, dur_in_16ths]
+  const Bp={0:[0,3],8:[1,2],10:[2,1.5],14:[3,1]};
+  
+  // Melody arp pattern (starts bar 2)
+  const Mp=[0,-1,2,-1,1,-1,3,-1,4,-1,2,-1,0,-1,3,-1];
+
+  for(let i=0;i<totalS;i++){
+    const t=t0+i*S;
+    if(t-t0>29)break;
+    const si=i%16; // step in bar
+    const bar=Math.floor(i/16);
+    const fade=Math.max(0,1-Math.max(0,(t-t0-22)/6)); // fade out last 6s
+
+    if(Kp[si])kick(t);
+    // extra syncopated kick
+    if(si===12&&bar%2===1)kick(t);
+
+    if(Sp[si])snare(t);
+    if(Hp[si])hat(t,.14*fade);
+    if(Ho[si])hat(t,.24*fade);
+
+    if(Bp[si]){
+      const[ni,dl]=Bp[si];
+      bass(t,BN[ni],dl*S*.9);
+    }
+
+    // Melody: only from bar 1 onwards, fade out
+    if(bar>=1&&Mp[si]>=0&&si%2===0){
+      mel(t,P5[Mp[si]],S*1.4,(bar>=6?.06:.12)*fade);
+    }
+    // Chord stabs every 4 bars on beat 1
+    if(si===0&&bar>0&&bar%4===0){
+      mel(t,P5[0],b*.4,.08);
+      mel(t,P5[2],b*.4,.06);
+      mel(t,P5[4],b*.4,.06);
+    }
+  }
+}
+
+/* =====================================================
+   SOUND TOGGLE
+===================================================== */
+const sndBtn=document.getElementById('sndBtn');
+sndBtn.addEventListener('click',()=>{
+  sndOn=!sndOn;sndBtn.textContent=sndOn?'🔊':'🔇';
+  if(sndOn&&!started)startAudio();
+  if(MG)MG.gain.value=sndOn?.75:0;
+});
+
+function startAudio(){
+  if(started)return;
+  started=true;
+  initAC();
+  const go=()=>schedule();
+  if(AC.state==='suspended')AC.resume().then(go);else go();
+}
+
+// First touch/click starts audio
+document.addEventListener('click',startAudio,{once:true});
+document.addEventListener('touchstart',startAudio,{once:true,passive:true});
+// Desktop auto-attempt
+setTimeout(()=>{
+  initAC();
+  if(AC&&AC.state!=='suspended'){startAudio()}
+},150);
+
+/* =====================================================
+   COUNTER ANIMATION (Scene 6)
+===================================================== */
+setTimeout(()=>{
+  function count(id,from,to,suf,dur){
+    const el=document.getElementById(id);
+    const s=Date.now();
+    (function f(){
+      const p=Math.min((Date.now()-s)/dur,1);
+      const e=1-Math.pow(1-p,3);
+      el.textContent=Math.round(from+(to-from)*e)+suf;
+      if(p<1)requestAnimationFrame(f);
+    })();
+  }
+  count('sn0',0,0,'%',800);   // 0% stays 0 but animates
+  count('sn1',0,10,'',1100);
+  count('sn2',0,100,'%',1300);
+},21300);
+
+/* =====================================================
+   AUTO RELOAD
+===================================================== */
+setTimeout(()=>{T0=Date.now();location.reload()},TOTAL+600);
+</script>
 </body>
 </html>
