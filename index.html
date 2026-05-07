@@ -25,23 +25,55 @@ body{font-family:'Sora',sans-serif;color:#fff;-webkit-font-smoothing:antialiased
 .dot{width:5px;height:5px;border-radius:50%;background:rgba(255,184,0,.25);transition:all .3s}
 .dot.on{background:var(--gold);transform:scale(1.5)}
 
-/* ── BACK + SOUND ── */
-.back-btn{
-  position:fixed;top:clamp(14px,3vh,26px);left:clamp(14px,3vw,26px);
-  z-index:9999;display:flex;align-items:center;gap:7px;
-  padding:10px 16px;border-radius:999px;text-decoration:none;
-  font-family:'Sora',sans-serif;font-size:clamp(11px,2.8vw,13px);font-weight:700;color:#fff;
-  background:rgba(255,184,0,.1);border:1.5px solid rgba(255,184,0,.35);
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  transition:all .2s;min-height:42px
+/* ── DIGIY ROUTES + SOUND ── */
+.digiy-route-bar{
+  position:fixed;
+  top:clamp(14px,3vh,26px);
+  left:clamp(14px,3vw,26px);
+  right:calc(clamp(14px,3vw,26px) + clamp(50px,11vw,64px));
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
 }
-.back-btn:hover{background:rgba(255,184,0,.2);border-color:rgba(255,184,0,.65)}
+.digiy-route-bar::-webkit-scrollbar{display:none}
+.digiy-route-btn{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-height:42px;
+  padding:10px 14px;
+  border-radius:999px;
+  text-decoration:none;
+  font-family:'Sora',sans-serif;
+  font-size:clamp(11px,2.8vw,13px);
+  font-weight:800;
+  color:#fff;
+  background:rgba(255,184,0,.10);
+  border:1.5px solid rgba(255,184,0,.35);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  transition:all .2s;
+  box-shadow:0 10px 28px rgba(0,0,0,.26);
+}
+.digiy-route-btn:hover{background:rgba(255,184,0,.20);border-color:rgba(255,184,0,.65)}
+.digiy-route-btn.hub{background:rgba(0,255,136,.10);border-color:rgba(0,255,136,.34);color:#dfffe9}
+.digiy-route-btn.pro{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22);color:#fff}
 .snd-btn{
   position:fixed;top:clamp(14px,3vh,26px);right:clamp(14px,3vw,26px);
   width:clamp(42px,10vw,54px);height:clamp(42px,10vw,54px);
   background:rgba(255,184,0,.12);border:1.5px solid rgba(255,184,0,.35);
   border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-size:clamp(18px,4.5vw,24px);cursor:pointer;z-index:9999;transition:all .2s
+}
+@media(max-width:520px){
+  .digiy-route-btn{padding:10px 12px;min-height:40px}
+  .digiy-route-btn span{display:none}
 }
 
 /* ── FLASH OVERLAY ── */
@@ -357,7 +389,12 @@ body{font-family:'Sora',sans-serif;color:#fff;-webkit-font-smoothing:antialiased
 
 <canvas id="bgCanvas"></canvas>
 
-<a class="back-btn" href="https://digiylyfe.com/" target="_blank" rel="noopener">← Retour</a>
+<nav class="digiy-route-bar" aria-label="Retours DIGIYLYFE">
+  <a class="digiy-route-btn" href="https://digiylyfe.com/" rel="noopener">🌍 <span>Site</span></a>
+  <a class="digiy-route-btn hub" href="https://digiy-hub.digiylyfe.com/" rel="noopener">🧭 <span>HUB</span></a>
+  <a class="digiy-route-btn" href="https://tarifs.digiylyfe.com/" rel="noopener">📦 <span>Tarifs</span></a>
+  <a class="digiy-route-btn pro" href="https://pro-espace.digiylyfe.com/" rel="noopener">🏢 <span>Espace pro</span></a>
+</nav>
 <div class="snd-btn" id="sndBtn">🔊</div>
 <div class="prog-bar"><div class="prog-fill" id="pFill"></div></div>
 <div class="prog-dots" id="pDots"></div>
