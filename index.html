@@ -6,7 +6,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>VAS CHEZ DIGIY · Le grand village digital africain</title>
-<!-- DIGIY BUILD: images +4s / mantra long / musique boucle -3s -->
+<!-- DIGIY BUILD: 2B patchwork mantra / images +4s / musique boucle -3s -->
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -238,6 +238,39 @@ body{font-family:'Sora',sans-serif;color:#fff;-webkit-font-smoothing:antialiased
 
 /* ======== SCENE 2B : MANTRA DU PRO TERRAIN — sans rallonge +4s ======== */
 .s2b{animation:sceneIn 9s ease-in-out 16s both;background:radial-gradient(ellipse at 50% 50%,rgba(0,255,136,.12) 0%,transparent 65%),#0A0A0A}
+
+.patchwork-mantra-wrap{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+.patchwork-mantra-img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  opacity:0;
+  animation:zoomSpin .9s cubic-bezier(.175,.885,.32,1.275) 16.2s forwards;
+  filter:brightness(.98) saturate(1.08);
+  border-radius:clamp(10px,2.6vw,24px);
+  box-shadow:0 0 42px rgba(255,184,0,.18);
+}
+@media(max-width:560px){
+  .patchwork-mantra-wrap{
+    padding:calc(50px + env(safe-area-inset-top)) 8px calc(38px + env(safe-area-inset-bottom));
+  }
+  .patchwork-mantra-img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    border-radius:16px;
+  }
+}
+
 .mantra-wrap{text-align:center;width:100%;display:flex;flex-direction:column;align-items:center}
 .mantra-line{opacity:0;margin:clamp(5px,1.2vh,11px) 0}
 .mantra-line.big{font-family:'Unbounded',sans-serif;font-weight:800;font-size:clamp(26px,6.5vw,54px);background:linear-gradient(125deg,var(--gold),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -488,17 +521,15 @@ body.digiy-not-started #victoire *{
   </div>
 </div>
 
-<!-- SCENE 2B : MANTRA DU PRO TERRAIN -->
+<!-- SCENE 2B : PATCHWORK MANTRA DIGIYLYFE -->
 <div class="scene s2b">
-  <div class="mantra-wrap">
-    <div class="mantra-line sm ml1">Je clique.</div>
-    <div class="mantra-line sm ml2">Je parle.</div>
-    <div class="mantra-line sm ml3">J'existe.</div>
-    <div class="mantra-line sm ml4">Je suis visible.</div>
-    <div class="mantra-line sm ml5">Je suis reconnu.</div>
-    <div class="mantra-line sm ml6">J'avance.</div>
-    <div class="mantra-line big ml7">DIGIYLYFE</div>
-    <button class="mantra-cta" type="button" onclick="document.getElementById('sndBtn')?.click()">🎧 Écouter · ⏹</button>
+  <div class="patchwork-mantra-wrap">
+    <img
+      class="patchwork-mantra-img"
+      src="https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-24-mai-2026-04_55_24.png"
+      alt="DIGIYLYFE — Je clique, je parle, j'existe"
+      loading="eager"
+    />
   </div>
 </div>
 
@@ -788,11 +819,7 @@ function launchAll(){
   scheduleFlashes();
   scheduleCounters();
   scheduleAutoReload();
-
-  // Programmer la lecture vocale du mantra depuis le vrai toucher de départ.
-  MANTRA_LINES.forEach(({t, txt}) => {
-    setTimeout(() => digiySpeak(txt), t);
-  });
+  // Scène 2B remplacée par patchwork image : pas de voix navigateur ici.
 }
 
 /* =====================================================
@@ -878,6 +905,29 @@ window.launchAll = launchAll;
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
