@@ -879,38 +879,8 @@ function playDigiyMantraNow(ev){
 function scheduleDigiyMantraVoice(){
   if(digiyMantraAlreadyScheduled) return;
   digiyMantraAlreadyScheduled = true;
-
-  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-  if(!isMobile){
-    // Desktop : setTimeout classique
-    setTimeout(() => speakDigiyText(DIGIY_MANTRA_TEXT), 16500);
-    return;
-  }
-
-  // iOS / Android : chaîne d'utterances silencieuses
-  // iOS interdit speak() depuis un setTimeout mais autorise speak()
-  // dans le onend d'une utterance. On maintient la session vivante
-  // jusqu'à la scène 2B avec des utterances quasi-silencieuses.
-  const fireAt = Date.now() + 16400;
-
-  function _iosChain(){
-    if(!window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
-    if(Date.now() >= fireAt){
-      speakDigiyText(DIGIY_MANTRA_TEXT);
-      return;
-    }
-    const u = new SpeechSynthesisUtterance('un deux trois');
-    u.volume = 0.001;
-    u.rate   = 0.5;
-    u.lang   = 'fr-FR';
-    if(digiyVoice) u.voice = digiyVoice;
-    u.onend  = _iosChain;
-    u.onerror= _iosChain;
-    try{ window.speechSynthesis.speak(u); }catch(_){ _iosChain(); }
-  }
-
-  _iosChain(); // démarre dans le handler du tap — iOS l'accepte
+  // Desktop uniquement — mobile parle directement depuis launchAll()
+  setTimeout(() => speakDigiyText(DIGIY_MANTRA_TEXT), 16500);
 }
 
 if(window.speechSynthesis){
@@ -942,8 +912,13 @@ function launchAll(){
   scheduleCounters();
   scheduleAutoReload();
 
-  // Programmer la voix DIGIY au bon moment, après déblocage mobile.
-  scheduleDigiyMantraVoice();
+  // Voix DIGIY — mobile : directement depuis le geste tap (iOS OK)
+  //              desktop : setTimeout au bon moment
+  if(/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+    speakDigiyText(DIGIY_MANTRA_TEXT);
+  } else {
+    scheduleDigiyMantraVoice();
+  }
 }
 
 /* =====================================================
@@ -1029,6 +1004,12 @@ window.launchAll = launchAll;
 </script>
 </body>
 </html>
+
+
+
+
+
+
 
 
 
