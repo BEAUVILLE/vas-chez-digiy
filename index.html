@@ -760,6 +760,18 @@ let digiyVoicePrimed = false;
 let digiyVoiceUnlocked = false;
 let digiyMantraAlreadyScheduled = false;
 
+/* ── iOS KEEPALIVE : empêche Safari de couper speechSynthesis après ~15s ── */
+let _iosKeepaliveTimer = null;
+function startIosVoiceKeepalive(){
+  if(_iosKeepaliveTimer) return;
+  _iosKeepaliveTimer = setInterval(()=>{
+    if(!window.speechSynthesis) return;
+    if(window.speechSynthesis.speaking) return;
+    window.speechSynthesis.pause();
+    window.speechSynthesis.resume();
+  }, 10000);
+}
+
 function pickDigiyVoice(){
   if(!window.speechSynthesis) return null;
   const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
@@ -806,9 +818,10 @@ function unlockDigiyVoiceFromGesture(){
     u.pitch = 1;
     u.volume = 0.01;
     if(digiyVoice) u.voice = digiyVoice;
+    digiyVoiceUnlocked = true; // on pose le flag AVANT speak (speak ne lance pas d'exception)
     window.speechSynthesis.speak(u);
 
-    digiyVoiceUnlocked = true;
+    startIosVoiceKeepalive(); // démarre le keepalive iOS dès le 1er tap
     return true;
   }catch(_){
     return false;
@@ -868,13 +881,20 @@ function scheduleDigiyMantraVoice(){
   digiyMantraAlreadyScheduled = true;
 
   // La scène mantra commence à 16s. On parle légèrement après l'entrée visuelle.
+  // Sur iOS : on force un resume() juste avant de parler (contourne la pause automatique).
   setTimeout(() => {
-    // Si le mobile a accepté le déblocage au tap initial, la voix part ici.
-    // Sinon, le bouton visible reste le secours manuel.
     if(digiyVoiceUnlocked || !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
-      speakDigiyText(DIGIY_MANTRA_TEXT);
+      try{ window.speechSynthesis.resume(); }catch(_){}
+      const ok = speakDigiyText(DIGIY_MANTRA_TEXT);
+      // Fallback : 2ème tentative 1.5s plus tard si la voix n'est pas partie
+      if(!ok){
+        setTimeout(()=>{
+          try{ window.speechSynthesis.resume(); }catch(_){}
+          speakDigiyText(DIGIY_MANTRA_TEXT);
+        }, 1500);
+      }
     }
-  }, 16150);
+  }, 16500);
 }
 
 if(window.speechSynthesis){
@@ -993,6 +1013,11 @@ window.launchAll = launchAll;
 </script>
 </body>
 </html>
+
+
+
+
+
 
 
 
