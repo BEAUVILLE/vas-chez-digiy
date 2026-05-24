@@ -498,7 +498,7 @@ body.digiy-not-started #victoire *{
     <div class="mantra-line sm ml5">Je suis reconnu.</div>
     <div class="mantra-line sm ml6">J'avance.</div>
     <div class="mantra-line big ml7">DIGIYLYFE</div>
-    <button class="mantra-cta" type="button" onclick="startDigiyMantraAudio(event)">🎧 Écouter la voix DIGIY</button>
+    <button class="mantra-cta" type="button" onclick="playDigiyMantraNow(event)">🎧 Écouter la voix DIGIY</button>
   </div>
 </div>
 
@@ -747,76 +747,142 @@ function initAC(){}
 
 /* =====================================================
    DIGIY VOICE — Mantra scène 2B
+   Mobile doctrine :
+   - Le premier tap déverrouille la voix navigateur.
+   - La phrase est ensuite rejouée au bon moment.
+   - Sur bouton manuel, on baisse la musique et on parle tout de suite.
 ===================================================== */
+const DIGIY_MANTRA_TEXT =
+  "Je clique. Je parle. J'existe. Je suis visible. Je suis reconnu. J'avance. DIGIYLYFE.";
+
 let digiyVoice = null;
 let digiyVoicePrimed = false;
+let digiyVoiceUnlocked = false;
+let digiyMantraAlreadyScheduled = false;
 
 function pickDigiyVoice(){
   if(!window.speechSynthesis) return null;
   const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
   if(!voices || !voices.length) return null;
-  const prefs = [
-    'google français','thomas','thomas (enhanced)','amélie','audrey','marie',
-    'french france','fr-fr','fr_fr'
-  ];
-  const byPref = voices.find(v => {
-    const n = String(v.name || '').toLowerCase();
-    const l = String(v.lang || '').toLowerCase();
-    return l.startsWith('fr') && prefs.some(p => n.includes(p) || l.includes(p));
+
+  const fr = voices.filter(v => String(v.lang || "").toLowerCase().startsWith("fr"));
+  const preferred = fr.find(v => {
+    const n = String(v.name || "").toLowerCase();
+    return (
+      n.includes("thomas") ||
+      n.includes("audrey") ||
+      n.includes("amélie") ||
+      n.includes("amelie") ||
+      n.includes("google") ||
+      n.includes("french") ||
+      n.includes("français") ||
+      n.includes("francais")
+    );
   });
-  return byPref || voices.find(v => String(v.lang || '').toLowerCase().startsWith('fr')) || voices[0] || null;
+
+  return preferred || fr[0] || voices[0] || null;
 }
 
 function primeDigiyVoice(){
-  if(!window.speechSynthesis) return;
+  if(!window.speechSynthesis || !window.SpeechSynthesisUtterance) return false;
   digiyVoice = pickDigiyVoice();
-  try{ window.speechSynthesis.cancel(); }catch(_){ }
   digiyVoicePrimed = true;
+  return true;
 }
 
-function digiySpeak(text){
-  if(!window.speechSynthesis) return;
-  if(!digiyVoicePrimed) primeDigiyVoice();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang   = 'fr-FR';
-  u.rate   = 0.92;
-  u.pitch  = 1.05;
-  u.volume = 1.0;
-  if(digiyVoice) u.voice = digiyVoice;
-  try{ window.speechSynthesis.speak(u); }catch(_){ }
+/* À appeler dans un vrai geste utilisateur : tap initial ou bouton voix. */
+function unlockDigiyVoiceFromGesture(){
+  if(!primeDigiyVoice()) return false;
+  if(digiyVoiceUnlocked) return true;
+
+  try{
+    window.speechSynthesis.cancel();
+
+    // Petit "déblocage" presque inaudible : certains téléphones refusent
+    // les voix lancées plus tard si aucune voix n'a été initialisée au tap.
+    const u = new SpeechSynthesisUtterance(".");
+    u.lang = "fr-FR";
+    u.rate = 1;
+    u.pitch = 1;
+    u.volume = 0.01;
+    if(digiyVoice) u.voice = digiyVoice;
+    window.speechSynthesis.speak(u);
+
+    digiyVoiceUnlocked = true;
+    return true;
+  }catch(_){
+    return false;
+  }
 }
 
-function startDigiyMantraAudio(ev){
+function speakDigiyText(text){
+  if(!window.speechSynthesis || !window.SpeechSynthesisUtterance) return false;
+  primeDigiyVoice();
+
+  try{
+    window.speechSynthesis.cancel();
+
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "fr-FR";
+    u.rate = 0.82;
+    u.pitch = 1.04;
+    u.volume = 1.0;
+    if(digiyVoice) u.voice = digiyVoice;
+
+    const oldVolume = audio.volume;
+    try{ audio.volume = Math.min(oldVolume, 0.22); }catch(_){}
+
+    u.onend = () => { try{ audio.volume = oldVolume; }catch(_){} };
+    u.onerror = () => { try{ audio.volume = oldVolume; }catch(_){} };
+
+    window.speechSynthesis.speak(u);
+    return true;
+  }catch(_){
+    return false;
+  }
+}
+
+function playDigiyMantraNow(ev){
   ev?.preventDefault?.();
   ev?.stopPropagation?.();
+
   try{
     if(audio.paused){
       const p = audio.play();
-      if(p && typeof p.catch === 'function') p.catch(()=>{});
-      sndBtn.textContent='🔊';
-      sndOn=true;
+      if(p && typeof p.catch === "function") p.catch(()=>{});
+      sndBtn.textContent = "🔊";
+      sndOn = true;
     }
-  }catch(_){ }
-  primeDigiyVoice();
-  digiySpeak("Je clique. Je parle. J'existe. Je suis visible. Je suis reconnu. J'avance. DIGIYLYFE.");
+  }catch(_){}
+
+  unlockDigiyVoiceFromGesture();
+  const ok = speakDigiyText(DIGIY_MANTRA_TEXT);
+
+  if(!ok){
+    alert("La voix automatique est bloquée par ce téléphone. Monte le son ou réessaie avec Chrome/Safari ouvert directement.");
+  }
+}
+
+function scheduleDigiyMantraVoice(){
+  if(digiyMantraAlreadyScheduled) return;
+  digiyMantraAlreadyScheduled = true;
+
+  // La scène mantra commence à 16s. On parle légèrement après l'entrée visuelle.
+  setTimeout(() => {
+    // Si le mobile a accepté le déblocage au tap initial, la voix part ici.
+    // Sinon, le bouton visible reste le secours manuel.
+    if(digiyVoiceUnlocked || !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
+      speakDigiyText(DIGIY_MANTRA_TEXT);
+    }
+  }, 16150);
 }
 
 if(window.speechSynthesis){
-  if(typeof window.speechSynthesis.onvoiceschanged !== 'undefined'){
+  if(typeof window.speechSynthesis.onvoiceschanged !== "undefined"){
     window.speechSynthesis.onvoiceschanged = primeDigiyVoice;
   }
-  setTimeout(primeDigiyVoice, 120);
+  setTimeout(primeDigiyVoice, 160);
 }
-
-const MANTRA_LINES = [
-  {t:16250, txt:'Je clique.'},
-  {t:16560, txt:'Je parle.'},
-  {t:16870, txt:"J'existe."},
-  {t:17180, txt:'Je suis visible.'},
-  {t:17490, txt:'Je suis reconnu.'},
-  {t:17800, txt:"J'avance."},
-  {t:18200, txt:'DIGIY LYFE.'},
-];
 
 function launchAll(){
   if(started)return;
@@ -828,7 +894,7 @@ function launchAll(){
   const ov=document.getElementById('tapStart');
   if(ov){ov.style.opacity='0';ov.style.transition='opacity .4s';setTimeout(()=>ov.remove(),400);}
 
-  primeDigiyVoice();
+  unlockDigiyVoiceFromGesture();
   try{audio.currentTime=0;}catch(_){}
   try{
     const p = audio.play();
@@ -840,10 +906,8 @@ function launchAll(){
   scheduleCounters();
   scheduleAutoReload();
 
-  // Programmer la lecture vocale du mantra depuis le vrai toucher de départ.
-  MANTRA_LINES.forEach(({t, txt}) => {
-    setTimeout(() => digiySpeak(txt), t);
-  });
+  // Programmer la voix DIGIY au bon moment, après déblocage mobile.
+  scheduleDigiyMantraVoice();
 }
 
 /* =====================================================
@@ -929,6 +993,7 @@ window.launchAll = launchAll;
 </script>
 </body>
 </html>
+
 
 
 
