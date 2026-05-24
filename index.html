@@ -498,7 +498,7 @@ body.digiy-not-started #victoire *{
     <div class="mantra-line sm ml5">Je suis reconnu.</div>
     <div class="mantra-line sm ml6">J'avance.</div>
     <div class="mantra-line big ml7">DIGIYLYFE</div>
-    <button class="mantra-cta" type="button" onclick="document.getElementById('sndBtn')?.click()">🎧 Écouter · ⏹</button>
+    <button class="mantra-cta" type="button" onclick="startDigiyMantraAudio(event)">🎧 Écouter la voix DIGIY</button>
   </div>
 </div>
 
@@ -748,14 +748,64 @@ function initAC(){}
 /* =====================================================
    DIGIY VOICE — Mantra scène 2B
 ===================================================== */
+let digiyVoice = null;
+let digiyVoicePrimed = false;
+
+function pickDigiyVoice(){
+  if(!window.speechSynthesis) return null;
+  const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+  if(!voices || !voices.length) return null;
+  const prefs = [
+    'google français','thomas','thomas (enhanced)','amélie','audrey','marie',
+    'french france','fr-fr','fr_fr'
+  ];
+  const byPref = voices.find(v => {
+    const n = String(v.name || '').toLowerCase();
+    const l = String(v.lang || '').toLowerCase();
+    return l.startsWith('fr') && prefs.some(p => n.includes(p) || l.includes(p));
+  });
+  return byPref || voices.find(v => String(v.lang || '').toLowerCase().startsWith('fr')) || voices[0] || null;
+}
+
+function primeDigiyVoice(){
+  if(!window.speechSynthesis) return;
+  digiyVoice = pickDigiyVoice();
+  try{ window.speechSynthesis.cancel(); }catch(_){ }
+  digiyVoicePrimed = true;
+}
+
 function digiySpeak(text){
   if(!window.speechSynthesis) return;
+  if(!digiyVoicePrimed) primeDigiyVoice();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang    = 'fr-FR';
-  u.rate    = 0.92;
-  u.pitch   = 1.05;
-  u.volume  = 1.0;
-  speechSynthesis.speak(u);
+  u.lang   = 'fr-FR';
+  u.rate   = 0.92;
+  u.pitch  = 1.05;
+  u.volume = 1.0;
+  if(digiyVoice) u.voice = digiyVoice;
+  try{ window.speechSynthesis.speak(u); }catch(_){ }
+}
+
+function startDigiyMantraAudio(ev){
+  ev?.preventDefault?.();
+  ev?.stopPropagation?.();
+  try{
+    if(audio.paused){
+      const p = audio.play();
+      if(p && typeof p.catch === 'function') p.catch(()=>{});
+      sndBtn.textContent='🔊';
+      sndOn=true;
+    }
+  }catch(_){ }
+  primeDigiyVoice();
+  digiySpeak("Je clique. Je parle. J'existe. Je suis visible. Je suis reconnu. J'avance. DIGIYLYFE.");
+}
+
+if(window.speechSynthesis){
+  if(typeof window.speechSynthesis.onvoiceschanged !== 'undefined'){
+    window.speechSynthesis.onvoiceschanged = primeDigiyVoice;
+  }
+  setTimeout(primeDigiyVoice, 120);
 }
 
 const MANTRA_LINES = [
@@ -778,6 +828,7 @@ function launchAll(){
   const ov=document.getElementById('tapStart');
   if(ov){ov.style.opacity='0';ov.style.transition='opacity .4s';setTimeout(()=>ov.remove(),400);}
 
+  primeDigiyVoice();
   try{audio.currentTime=0;}catch(_){}
   try{
     const p = audio.play();
@@ -878,6 +929,7 @@ window.launchAll = launchAll;
 </script>
 </body>
 </html>
+
 
 
 
