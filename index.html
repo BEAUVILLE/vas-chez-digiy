@@ -880,21 +880,37 @@ function scheduleDigiyMantraVoice(){
   if(digiyMantraAlreadyScheduled) return;
   digiyMantraAlreadyScheduled = true;
 
-  // La scène mantra commence à 16s. On parle légèrement après l'entrée visuelle.
-  // Sur iOS : on force un resume() juste avant de parler (contourne la pause automatique).
-  setTimeout(() => {
-    if(digiyVoiceUnlocked || !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
-      try{ window.speechSynthesis.resume(); }catch(_){}
-      const ok = speakDigiyText(DIGIY_MANTRA_TEXT);
-      // Fallback : 2ème tentative 1.5s plus tard si la voix n'est pas partie
-      if(!ok){
-        setTimeout(()=>{
-          try{ window.speechSynthesis.resume(); }catch(_){}
-          speakDigiyText(DIGIY_MANTRA_TEXT);
-        }, 1500);
-      }
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  if(!isMobile){
+    // Desktop : setTimeout classique
+    setTimeout(() => speakDigiyText(DIGIY_MANTRA_TEXT), 16500);
+    return;
+  }
+
+  // iOS / Android : chaîne d'utterances silencieuses
+  // iOS interdit speak() depuis un setTimeout mais autorise speak()
+  // dans le onend d'une utterance. On maintient la session vivante
+  // jusqu'à la scène 2B avec des utterances quasi-silencieuses.
+  const fireAt = Date.now() + 16400;
+
+  function _iosChain(){
+    if(!window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
+    if(Date.now() >= fireAt){
+      speakDigiyText(DIGIY_MANTRA_TEXT);
+      return;
     }
-  }, 16500);
+    const u = new SpeechSynthesisUtterance('un deux trois');
+    u.volume = 0.001;
+    u.rate   = 0.5;
+    u.lang   = 'fr-FR';
+    if(digiyVoice) u.voice = digiyVoice;
+    u.onend  = _iosChain;
+    u.onerror= _iosChain;
+    try{ window.speechSynthesis.speak(u); }catch(_){ _iosChain(); }
+  }
+
+  _iosChain(); // démarre dans le handler du tap — iOS l'accepte
 }
 
 if(window.speechSynthesis){
@@ -1013,6 +1029,12 @@ window.launchAll = launchAll;
 </script>
 </body>
 </html>
+
+
+
+
+
+
 
 
 
