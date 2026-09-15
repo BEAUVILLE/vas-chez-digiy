@@ -707,6 +707,29 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     [392.00,493.88,587.33]
   ];
 
+  /* iPhone : le Web Audio est coupé par le bouton silencieux et doit être débloqué
+     pendant le toucher. Un <audio> silencieux en boucle bascule la session en « lecture ». */
+  let silentEl=null;
+  function silentWavURL(){
+    const sr=8000,n=4000,buf=new ArrayBuffer(44+n*2),v=new DataView(buf);
+    const w=(o,t)=>{for(let k=0;k<t.length;k++)v.setUint8(o+k,t.charCodeAt(k));};
+    w(0,'RIFF');v.setUint32(4,36+n*2,true);w(8,'WAVE');w(12,'fmt ');
+    v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+    v.setUint32(24,sr,true);v.setUint32(28,sr*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);
+    w(36,'data');v.setUint32(40,n*2,true);
+    return URL.createObjectURL(new Blob([buf],{type:'audio/wav'}));
+  }
+  function unlockAudio(){
+    try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
+    try{
+      if(!silentEl){ silentEl=new Audio(silentWavURL()); silentEl.loop=true; silentEl.setAttribute('playsinline',''); silentEl.preload='auto'; }
+      const pr=silentEl.play(); if(pr&&pr.catch) pr.catch(()=>{});
+    }catch(e){}
+    ensureAudio();
+    if(ac.state!=='running'){ try{ ac.resume(); }catch(e){} }
+    try{ const b=ac.createBuffer(1,1,22050), src=ac.createBufferSource(); src.buffer=b; src.connect(ac.destination); src.start(0); }catch(e){}
+  }
+
   function ensureAudio(){
     if(ac) return;
     ac=new (window.AudioContext||window.webkitAudioContext)();
@@ -816,7 +839,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   }
   async function startMusic(reset=false){
     ensureAudio();
-    if(ac.state==='suspended') await ac.resume();
+    if(ac.state!=='running') await ac.resume();
     if(reset){ step=0; nextStepTime=ac.currentTime+.05; introSweep(); }
     else if(nextStepTime<ac.currentTime){ nextStepTime=ac.currentTime+.05; }
     if(!schedulerTimer) schedulerTimer=setInterval(scheduler,25);
@@ -901,7 +924,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
   async function launch(){
     if(launched) return;
-    ensureAudio();
+    unlockAudio();
     launched=true;
     startOverlay.classList.add('leaving');
     setTimeout(()=>startOverlay.classList.add('hidden'),500);
@@ -910,7 +933,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     await startMusic(true);
   }
   async function restart(){
-    ensureAudio();
+    unlockAudio();
     launched=true; ended=false; app.classList.remove('ended');
     pauseInd.textContent='⏸ Pause · touchez pour reprendre';
     setPaused(false); show(0);
@@ -921,11 +944,13 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     if(ended){ await restart(); return; }
     if(!paused){
       setPaused(true); pauseAt=performance.now();
+      if(silentEl) silentEl.pause();
       if(ac && ac.state==='running') await ac.suspend();
     }else{
       started += performance.now()-pauseAt;
       setPaused(false);
-      if(ac && ac.state==='suspended') await ac.resume();
+      unlockAudio();
+      if(ac && ac.state!=='running') await ac.resume();
       if(ac) nextStepTime=ac.currentTime+.05;
     }
   }
@@ -935,7 +960,8 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     if(ended){ ended=false; app.classList.remove('ended'); pauseInd.textContent='⏸ Pause · touchez pour reprendre'; }
     const wasPaused=paused;
     setPaused(false);
-    if(wasPaused && ac){ if(ac.state==='suspended') await ac.resume(); nextStepTime=ac.currentTime+.05; }
+    unlockAudio();
+    if(wasPaused && ac){ if(ac.state!=='running') await ac.resume(); nextStepTime=ac.currentTime+.05; }
     show(n);
     await startMusic(false);
   }
@@ -955,6 +981,11 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     if(!launched || performance.now()-lastSwipe<450) return;
     await togglePause();
   });
+
+  /* filet de sécurité : si iOS a interrompu l'audio (appel, notification), le prochain toucher le relance */
+  ['touchend','click'].forEach(ev=>document.addEventListener(ev,()=>{
+    if(launched && !paused && ac && ac.state!=='running') unlockAudio();
+  },{passive:true,capture:true}));
 
   let tx=0, ty=0;
   app.addEventListener('touchstart', e => { const t=e.changedTouches[0]; tx=t.clientX; ty=t.clientY; }, {passive:true});
